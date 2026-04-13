@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <title>Custorian Intelligence — Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -141,6 +143,8 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
       <li id="benchmarkLink" onclick="switchView('benchmark')">Compare</li>
       <div class="sidebar-section">System</div>
       <li onclick="switchView('adoption')">Adoption Metrics</li>
+      <li onclick="switchView('map')">School Map</li>
+      <li onclick="switchView('export')">Data Export</li>
       <li onclick="switchView('baseline')">National Baseline</li>
       <li onclick="switchView('methodology')">Methodology</li>
     </ul>
@@ -356,6 +360,32 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
         </div>
       </div>
     </div>
+    <!-- SCHOOL MAP -->
+    <div id="view-map" style="display:none">
+      <div class="chart-card">
+        <div class="chart-title">School Map — Participating Institutions</div>
+        <div id="schoolMap" style="height:400px;border-radius:8px;margin-top:12px"></div>
+        <p style="font-size:.7rem;color:var(--mute);margin-top:12px">Dots represent participating schools. Colour indicates overall threat level (green = below average, amber = average, red = above average). Tap a dot for summary.</p>
+      </div>
+    </div>
+
+    <!-- STRUCTURED EXPORT -->
+    <div id="view-export" style="display:none">
+      <div class="chart-card">
+        <div class="chart-title">Data Export</div>
+        <p style="color:var(--dim);font-size:.85rem;margin-bottom:20px">Download dashboard data in structured formats for regulatory reporting, analysis, or integration with other systems.</p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <button onclick="exportData('json')" style="padding:12px 24px;border-radius:100px;border:1px solid var(--accent);background:var(--bg);color:var(--accent);font-size:.82rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif">Export JSON</button>
+          <button onclick="exportData('csv')" style="padding:12px 24px;border-radius:100px;border:1px solid var(--accent);background:var(--bg);color:var(--accent);font-size:.82rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif">Export CSV</button>
+          <button onclick="exportData('xml')" style="padding:12px 24px;border-radius:100px;border:1px solid var(--accent);background:var(--bg);color:var(--accent);font-size:.82rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif">Export XML</button>
+          <button onclick="exportData('pdf')" style="padding:12px 24px;border-radius:100px;border:1px solid var(--accent);background:var(--bg);color:var(--accent);font-size:.82rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif">Export PDF Report</button>
+        </div>
+        <div id="exportPreview" style="display:none;margin-top:20px">
+          <pre id="exportContent" style="max-height:300px;overflow:auto"></pre>
+        </div>
+      </div>
+    </div>
+
     <div id="view-baseline" style="display:none">
       <div class="chart-card" style="margin-bottom:24px">
         <div class="chart-title">National & International Baseline Data</div>
@@ -592,6 +622,108 @@ function switchView(view) {
 
 function exportReport() {
   alert('PDF export coming in v1.1. This will generate a presentation-ready compliance report.');
+}
+
+// ─── SCHOOL MAP ─────────────────────────────
+let mapInitialized = false;
+function initMap() {
+  if (mapInitialized) return;
+  mapInitialized = true;
+  const map = L.map('schoolMap').setView([55.4, 10.4], 11); // Odense
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors',
+    maxZoom: 18
+  }).addTo(map);
+
+  // Demo schools in Odense area
+  const schools = [
+    { lat: 55.403, lng: 10.388, name: 'School A', level: 'green', threats: 12 },
+    { lat: 55.395, lng: 10.410, name: 'School B', level: 'green', threats: 8 },
+    { lat: 55.412, lng: 10.375, name: 'School C', level: 'amber', threats: 34 },
+    { lat: 55.390, lng: 10.430, name: 'School D', level: 'green', threats: 15 },
+    { lat: 55.420, lng: 10.400, name: 'School E', level: 'red', threats: 67 },
+    { lat: 55.385, lng: 10.350, name: 'School F', level: 'green', threats: 11 },
+    { lat: 55.408, lng: 10.420, name: 'School G', level: 'amber', threats: 28 },
+    { lat: 55.398, lng: 10.360, name: 'School H', level: 'green', threats: 9 },
+    { lat: 55.415, lng: 10.445, name: 'School I', level: 'green', threats: 14 },
+    { lat: 55.375, lng: 10.395, name: 'School J', level: 'green', threats: 7 },
+    { lat: 55.405, lng: 10.440, name: 'School K', level: 'amber', threats: 31 },
+    { lat: 55.392, lng: 10.380, name: 'School L', level: 'green', threats: 10 },
+  ];
+
+  const colors = { green: '#10b981', amber: '#f59e0b', red: '#ef4444' };
+  schools.forEach(s => {
+    L.circleMarker([s.lat, s.lng], {
+      radius: 8 + (s.threats / 10),
+      fillColor: colors[s.level],
+      color: colors[s.level],
+      weight: 2,
+      opacity: 0.8,
+      fillOpacity: 0.4
+    }).addTo(map).bindPopup(`<strong>${s.name}</strong><br>${s.threats} threats this term<br>Status: ${s.level}`);
+  });
+}
+
+// Initialize map when view is shown
+const origSwitchView = switchView;
+switchView = function(view) {
+  origSwitchView(view);
+  if (view === 'map') setTimeout(initMap, 100);
+};
+
+// ─── STRUCTURED EXPORT ──────────────────────
+const demoData = {
+  institution: "Odense International School",
+  period: "2026-Q1",
+  generated: new Date().toISOString(),
+  standard: "Custorian Controls Framework v0.1",
+  summary: {
+    total_threats: 247,
+    critical: 8,
+    categories: { bullying: 112, harmful_trends: 58, grooming: 33, self_harm: 19, violence: 14, adult_content: 8, photos: 3 },
+    adoption_rate: 0.78,
+    data_confidence: "high"
+  },
+  temporal: {
+    peak_day: "Wednesday",
+    peak_time: "18:00-22:00",
+    trend_vs_prior: -0.12
+  }
+};
+
+function exportData(format) {
+  let content = '';
+  let filename = `custorian-export-${demoData.period}`;
+
+  switch(format) {
+    case 'json':
+      content = JSON.stringify(demoData, null, 2);
+      filename += '.json';
+      break;
+    case 'csv':
+      content = 'category,count,trend\n';
+      Object.entries(demoData.summary.categories).forEach(([k,v]) => { content += `${k},${v},stable\n`; });
+      filename += '.csv';
+      break;
+    case 'xml':
+      content = `<?xml version="1.0" encoding="UTF-8"?>\n<custorian_report>\n  <institution>${demoData.institution}</institution>\n  <period>${demoData.period}</period>\n  <standard>${demoData.standard}</standard>\n  <summary>\n    <total_threats>${demoData.summary.total_threats}</total_threats>\n    <critical>${demoData.summary.critical}</critical>\n    <adoption_rate>${demoData.summary.adoption_rate}</adoption_rate>\n  </summary>\n</custorian_report>`;
+      filename += '.xml';
+      break;
+    case 'pdf':
+      alert('PDF export generates a presentation-ready compliance report. Coming in production release.');
+      return;
+  }
+
+  // Show preview
+  document.getElementById('exportPreview').style.display = 'block';
+  document.getElementById('exportContent').textContent = content;
+
+  // Download file
+  const blob = new Blob([content], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
 }
 </script>
 
