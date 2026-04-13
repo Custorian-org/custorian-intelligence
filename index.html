@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Custorian Intelligence — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#f5f7fa;--bg2:#fff;--navy:#1a1a2e;--navy2:#2d2d44;
+  --accent:#7c3aed;--accent-light:#ede9fe;--accent-dark:#5b21b6;
+  --safe:#10b981;--safe-bg:#ecfdf5;--danger:#ef4444;--danger-bg:#fef2f2;
+  --warning:#f59e0b;--warning-bg:#fffbeb;--info:#3b82f6;
+  --text:#1a1a2e;--dim:#6b7280;--mute:#9ca3af;--border:#e5e7eb;
+  --radius:12px;--shadow:0 1px 3px rgba(0,0,0,0.06);
+}
+html{font-size:14px}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* LOGIN */
+.login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--navy)}
+.login-card{background:var(--bg2);border-radius:16px;padding:48px;max-width:400px;width:90%;text-align:center}
+.login-brand{font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:1.6rem;color:var(--navy);margin-bottom:4px}
+.login-sub{font-size:.75rem;color:var(--mute);letter-spacing:2px;text-transform:uppercase;margin-bottom:32px}
+.login-field{width:100%;padding:12px 16px;border:1px solid var(--border);border-radius:8px;font-size:.9rem;margin-bottom:12px;outline:none;font-family:'Inter',sans-serif}
+.login-field:focus{border-color:var(--accent)}
+.login-select{width:100%;padding:12px 16px;border:1px solid var(--border);border-radius:8px;font-size:.9rem;margin-bottom:20px;outline:none;font-family:'Inter',sans-serif;background:#fff;cursor:pointer;appearance:none}
+.login-btn{width:100%;padding:14px;border:none;border-radius:100px;background:var(--accent);color:#fff;font-size:.9rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.login-btn:hover{background:var(--accent-dark);transform:translateY(-1px)}
+.login-footer{margin-top:24px;font-size:.7rem;color:var(--mute)}
+
+/* LAYOUT */
+.app{display:none;min-height:100vh}
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:240px;background:var(--navy);padding:24px 0;overflow-y:auto;z-index:10}
+.sidebar-brand{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.1rem;color:#fff;padding:0 24px;margin-bottom:4px}
+.sidebar-role{font-size:.65rem;color:rgba(255,255,255,.35);padding:0 24px;letter-spacing:2px;text-transform:uppercase;margin-bottom:32px}
+.sidebar-nav{list-style:none}
+.sidebar-nav li{padding:10px 24px;font-size:.85rem;font-weight:500;color:rgba(255,255,255,.5);cursor:pointer;transition:all .2s;border-left:3px solid transparent}
+.sidebar-nav li:hover{color:#fff;background:rgba(255,255,255,.05)}
+.sidebar-nav li.active{color:#fff;background:rgba(124,58,237,.15);border-left-color:var(--accent)}
+.sidebar-section{font-size:.6rem;font-weight:700;color:rgba(255,255,255,.2);padding:20px 24px 8px;letter-spacing:2px;text-transform:uppercase}
+.sidebar-logout{position:absolute;bottom:24px;left:24px;right:24px;font-size:.78rem;color:rgba(255,255,255,.3);cursor:pointer;padding:10px 0;text-align:center;border-top:1px solid rgba(255,255,255,.06)}
+.sidebar-logout:hover{color:#fff}
+
+.main{margin-left:240px;padding:32px}
+.main-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:32px}
+.main-title{font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:1.8rem;letter-spacing:-1px}
+.main-subtitle{font-size:.8rem;color:var(--dim);margin-top:4px}
+.period-select{padding:8px 16px;border:1px solid var(--border);border-radius:100px;font-size:.78rem;font-family:'Inter',sans-serif;background:#fff;cursor:pointer}
+.export-btn{padding:8px 20px;border:1px solid var(--accent);border-radius:100px;font-size:.78rem;font-weight:600;color:var(--accent);background:var(--accent-light);cursor:pointer;margin-left:8px;font-family:'Inter',sans-serif}
+.export-btn:hover{background:var(--accent);color:#fff}
+
+/* STATS ROW */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.stat-card{background:var(--bg2);border-radius:var(--radius);padding:20px 24px;border:1px solid var(--border);box-shadow:var(--shadow)}
+.stat-label{font-size:.65rem;font-weight:700;color:var(--mute);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px}
+.stat-value{font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:2rem;letter-spacing:-1px;line-height:1}
+.stat-trend{display:inline-flex;align-items:center;gap:4px;font-size:.72rem;font-weight:600;margin-top:6px;padding:2px 8px;border-radius:100px}
+.stat-trend.up{background:var(--danger-bg);color:var(--danger)}
+.stat-trend.down{background:var(--safe-bg);color:var(--safe)}
+.stat-trend.flat{background:#f3f4f6;color:var(--dim)}
+.stat-confidence{font-size:.6rem;color:var(--mute);margin-top:6px}
+
+/* CHARTS */
+.chart-grid{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:24px}
+.chart-card{background:var(--bg2);border-radius:var(--radius);padding:24px;border:1px solid var(--border);box-shadow:var(--shadow)}
+.chart-title{font-size:.82rem;font-weight:700;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+.chart-info{font-size:.6rem;color:var(--mute);cursor:help;border:1px solid var(--border);border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center}
+.chart-bar-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.chart-bar-label{font-size:.75rem;font-weight:500;color:var(--dim);width:100px;text-align:right}
+.chart-bar-track{flex:1;height:24px;background:var(--bg);border-radius:4px;overflow:hidden;position:relative}
+.chart-bar-fill{height:100%;border-radius:4px;transition:width .6s ease}
+.chart-bar-value{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:.65rem;font-weight:700;color:var(--text)}
+
+/* HEATMAP */
+.heatmap{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:12px}
+.heat-cell{aspect-ratio:1;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:.55rem;font-weight:600;color:var(--dim)}
+.heat-label{font-size:.6rem;color:var(--mute);text-align:center;padding:4px 0}
+
+/* TABLE */
+.table-card{background:var(--bg2);border-radius:var(--radius);border:1px solid var(--border);overflow:hidden;margin-bottom:24px;box-shadow:var(--shadow)}
+.table-header{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;padding:12px 24px;background:var(--bg);font-size:.65rem;font-weight:700;color:var(--mute);letter-spacing:1px;text-transform:uppercase}
+.table-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;padding:14px 24px;border-top:1px solid var(--border);align-items:center;font-size:.82rem;transition:background .1s}
+.table-row:hover{background:var(--bg)}
+.table-name{font-weight:600}
+.table-badge{display:inline-block;padding:2px 8px;border-radius:100px;font-size:.65rem;font-weight:700}
+
+/* ACTIONS */
+.actions-card{background:var(--bg2);border-radius:var(--radius);padding:24px;border:1px solid var(--border);margin-bottom:24px;box-shadow:var(--shadow)}
+.action-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.action-item:last-child{border-bottom:none}
+.action-priority{width:8px;height:8px;border-radius:4px;margin-top:6px;flex-shrink:0}
+.action-text{font-size:.82rem;line-height:1.5}
+.action-meta{font-size:.65rem;color:var(--mute);margin-top:4px}
+
+/* METHODOLOGY TOOLTIP */
+.methodology{font-size:.7rem;color:var(--mute);line-height:1.5;padding:16px;background:var(--bg);border-radius:8px;margin-top:12px;border:1px solid var(--border)}
+
+/* RESPONSIVE */
+@media(max-width:1024px){.stats-row{grid-template-columns:repeat(2,1fr)}.chart-grid{grid-template-columns:1fr}}
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="login-brand">Custorian Intelligence</div>
+    <div class="login-sub">Institutional Dashboard</div>
+    <input class="login-field" type="email" id="loginEmail" placeholder="Email" value="demo@custorian.org">
+    <input class="login-field" type="password" id="loginPassword" placeholder="Password" value="demo">
+    <select class="login-select" id="loginRole">
+      <option value="school">School Administrator</option>
+      <option value="municipality">Municipality / Kommune</option>
+      <option value="region">Regional Authority</option>
+      <option value="national">National Agency</option>
+    </select>
+    <button class="login-btn" onclick="login()">Sign In</button>
+    <div class="login-footer">Custorian Intelligence · custorian.org<br>Demo mode — no real data</div>
+  </div>
+</div>
+
+<!-- DASHBOARD APP -->
+<div class="app" id="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-brand">Custorian</div>
+    <div class="sidebar-role" id="sidebarRole">School</div>
+    <ul class="sidebar-nav">
+      <li class="active" onclick="switchView('overview')">Overview</li>
+      <li onclick="switchView('threats')">Threat Analysis</li>
+      <li onclick="switchView('temporal')">Temporal Patterns</li>
+      <li onclick="switchView('trends')">Trends</li>
+      <div class="sidebar-section">Actions</div>
+      <li onclick="switchView('actions')">Recommended Actions</li>
+      <li onclick="switchView('interventions')">Intervention Tracker</li>
+      <div class="sidebar-section" id="benchmarkSection">Benchmarking</div>
+      <li id="benchmarkLink" onclick="switchView('benchmark')">Compare</li>
+      <div class="sidebar-section">System</div>
+      <li onclick="switchView('adoption')">Adoption Metrics</li>
+      <li onclick="switchView('methodology')">Methodology</li>
+    </ul>
+    <div class="sidebar-logout" onclick="logout()">Sign out</div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main">
+    <div class="main-header">
+      <div>
+        <div class="main-title" id="mainTitle">Overview</div>
+        <div class="main-subtitle" id="mainSubtitle">Odense International School · This term</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <select class="period-select" id="periodSelect">
+          <option value="week">This week</option>
+          <option value="month">This month</option>
+          <option value="term" selected>This term</option>
+          <option value="year">This year</option>
+        </select>
+        <button class="export-btn" onclick="exportReport()">Export PDF</button>
+      </div>
+    </div>
+
+    <!-- OVERVIEW VIEW -->
+    <div id="view-overview">
+
+      <!-- Stats row -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Total Threats</div>
+          <div class="stat-value" id="statTotal">247</div>
+          <div class="stat-trend down">↓ 12% vs last term</div>
+          <div class="stat-confidence">Based on 78% family adoption · High confidence</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Critical Alerts</div>
+          <div class="stat-value" style="color:var(--danger)" id="statCritical">8</div>
+          <div class="stat-trend up">↑ 2 from last term</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Most Common</div>
+          <div class="stat-value" style="font-size:1.2rem" id="statCommon">Bullying</div>
+          <div class="stat-trend flat">→ Consistent</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Interventions</div>
+          <div class="stat-value" style="color:var(--safe)" id="statInterventions">3</div>
+          <div class="stat-trend down">Avg impact: ↓31%</div>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div class="chart-grid">
+        <div class="chart-card">
+          <div class="chart-title">
+            Threats by Category
+            <span class="chart-info" title="Categories detected by on-device AI. Counts are anonymised — no individual student data.">?</span>
+          </div>
+          <div class="chart-bar-row">
+            <div class="chart-bar-label">Bullying</div>
+            <div class="chart-bar-track"><div class="chart-bar-fill" style="width:68%;background:var(--warning)"></div><div class="chart-bar-value">112</div></div>
+          </div>
+          <div class="chart-bar-row">
+            <div class="chart-bar-label">Harmful Trends</div>
+            <div class="chart-bar-track"><div class="chart-bar-fill" style="width:35%;background:#d946ef"></div><div class="chart-bar-value">58</div></div>
+          </div>
+          <div class="chart-bar-row">
+            <div class="chart-bar-label">Grooming</div>
+            <div class="chart-bar-track"><div class="chart-bar-fill" style="width:20%;background:var(--danger)"></div><div class="chart-bar-value">33</div></div>
+          </div>
+          <div class="chart-bar-row">
+            <div class="chart-bar-label">Self-Harm</div>
+            <div class="chart-bar-track"><div class="chart-bar-fill" style="width:12%;background:var(--accent)"></div><div class="chart-bar-value">19</div></div>
+          </div>
+          <div class="chart-bar-row">
+            <div class="chart-bar-label">Violence</div>
+            <div class="chart-bar-track"><div class="chart-bar-fill" style="width:8%;background:#dc2626"></div><div class="chart-bar-value">14</div></div>
+          </div>
+          <div class="chart-bar-row">
+            <div class="chart-bar-label">Adult Content</div>
+            <div class="chart-bar-track"><div class="chart-bar-fill" style="width:5%;background:#f97316"></div><div class="chart-bar-value">8</div></div>
+          </div>
+          <div class="chart-bar-row">
+            <div class="chart-bar-label">Photos</div>
+            <div class="chart-bar-track"><div class="chart-bar-fill" style="width:2%;background:var(--info)"></div><div class="chart-bar-value">3</div></div>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-title">
+            By Age Bracket
+            <span class="chart-info" title="Age brackets are set during app onboarding. No exact ages are transmitted.">?</span>
+          </div>
+          <div class="chart-bar-row">
+            <div class="chart-bar-label">8-10</div>
+            <div class="chart-bar-track"><div class="chart-bar-fill" style="width:18%;background:var(--accent)"></div><div class="chart-bar-value">44</div></div>
+          </div>
+          <div class="chart-bar-row">
+            <div class="chart-bar-label">11-13</div>
+            <div class="chart-bar-track"><div class="chart-bar-fill" style="width:45%;background:var(--accent)"></div><div class="chart-bar-value">111</div></div>
+          </div>
+          <div class="chart-bar-row">
+            <div class="chart-bar-label">14-16</div>
+            <div class="chart-bar-track"><div class="chart-bar-fill" style="width:32%;background:var(--accent)"></div><div class="chart-bar-value">78</div></div>
+          </div>
+          <div class="chart-bar-row">
+            <div class="chart-bar-label">17+</div>
+            <div class="chart-bar-track"><div class="chart-bar-fill" style="width:6%;background:var(--accent)"></div><div class="chart-bar-value">14</div></div>
+          </div>
+
+          <div style="margin-top:24px">
+            <div class="chart-title">Severity</div>
+            <div class="chart-bar-row">
+              <div class="chart-bar-label">Critical</div>
+              <div class="chart-bar-track"><div class="chart-bar-fill" style="width:3%;background:var(--danger)"></div><div class="chart-bar-value">8</div></div>
+            </div>
+            <div class="chart-bar-row">
+              <div class="chart-bar-label">High</div>
+              <div class="chart-bar-track"><div class="chart-bar-fill" style="width:15%;background:var(--warning)"></div><div class="chart-bar-value">37</div></div>
+            </div>
+            <div class="chart-bar-row">
+              <div class="chart-bar-label">Medium</div>
+              <div class="chart-bar-track"><div class="chart-bar-fill" style="width:40%;background:var(--info)"></div><div class="chart-bar-value">98</div></div>
+            </div>
+            <div class="chart-bar-row">
+              <div class="chart-bar-label">Low</div>
+              <div class="chart-bar-track"><div class="chart-bar-fill" style="width:42%;background:#9ca3af"></div><div class="chart-bar-value">104</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Temporal heatmap -->
+      <div class="chart-card" style="margin-bottom:24px">
+        <div class="chart-title">
+          When Threats Occur
+          <span class="chart-info" title="Heatmap shows when alerts are generated by day and time. Darker = more threats.">?</span>
+        </div>
+        <div style="display:grid;grid-template-columns:60px repeat(7,1fr);gap:4px;margin-top:8px">
+          <div></div>
+          <div class="heat-label">Mon</div><div class="heat-label">Tue</div><div class="heat-label">Wed</div><div class="heat-label">Thu</div><div class="heat-label">Fri</div><div class="heat-label">Sat</div><div class="heat-label">Sun</div>
+          <div class="heat-label" style="text-align:right;padding-right:8px">Morning</div>
+          <div class="heat-cell" style="background:var(--accent-light)">2</div><div class="heat-cell" style="background:var(--accent-light)">3</div><div class="heat-cell" style="background:var(--accent-light)">1</div><div class="heat-cell" style="background:var(--accent-light)">2</div><div class="heat-cell" style="background:var(--accent-light)">4</div><div class="heat-cell" style="background:#f3f4f6">0</div><div class="heat-cell" style="background:#f3f4f6">1</div>
+          <div class="heat-label" style="text-align:right;padding-right:8px">Afternoon</div>
+          <div class="heat-cell" style="background:rgba(124,58,237,0.2)">8</div><div class="heat-cell" style="background:rgba(124,58,237,0.15)">6</div><div class="heat-cell" style="background:rgba(124,58,237,0.3)">12</div><div class="heat-cell" style="background:rgba(124,58,237,0.2)">7</div><div class="heat-cell" style="background:rgba(124,58,237,0.25)">9</div><div class="heat-cell" style="background:rgba(124,58,237,0.1)">4</div><div class="heat-cell" style="background:rgba(124,58,237,0.1)">3</div>
+          <div class="heat-label" style="text-align:right;padding-right:8px">Evening</div>
+          <div class="heat-cell" style="background:rgba(124,58,237,0.35)">14</div><div class="heat-cell" style="background:rgba(124,58,237,0.3)">11</div><div class="heat-cell" style="background:rgba(124,58,237,0.45);color:#fff">18</div><div class="heat-cell" style="background:rgba(124,58,237,0.35)">13</div><div class="heat-cell" style="background:rgba(124,58,237,0.5);color:#fff">22</div><div class="heat-cell" style="background:rgba(124,58,237,0.4);color:#fff">16</div><div class="heat-cell" style="background:rgba(124,58,237,0.35)">12</div>
+          <div class="heat-label" style="text-align:right;padding-right:8px">Night</div>
+          <div class="heat-cell" style="background:rgba(239,68,68,0.15)">5</div><div class="heat-cell" style="background:rgba(239,68,68,0.1)">3</div><div class="heat-cell" style="background:rgba(239,68,68,0.1)">4</div><div class="heat-cell" style="background:rgba(239,68,68,0.1)">3</div><div class="heat-cell" style="background:rgba(239,68,68,0.2)">7</div><div class="heat-cell" style="background:rgba(239,68,68,0.25)">9</div><div class="heat-cell" style="background:rgba(239,68,68,0.15)">5</div>
+        </div>
+        <div class="methodology">Peak threat window: <strong>Wednesday-Friday evenings (18:00-22:00)</strong>. This aligns with after-school gaming/social media usage. Consider scheduling digital safety discussions before these periods.</div>
+      </div>
+
+      <!-- Recommended actions -->
+      <div class="actions-card">
+        <div class="chart-title">Recommended Actions</div>
+        <div class="action-item">
+          <div class="action-priority" style="background:var(--danger)"></div>
+          <div>
+            <div class="action-text"><strong>Self-harm signals rising in ages 14-16.</strong> 3 critical alerts in the past 2 weeks, up from 0 last term. Consider targeted wellbeing check-in for this age group.</div>
+            <div class="action-meta">Priority: High · Category: Self-Harm · Age: 14-16</div>
+          </div>
+        </div>
+        <div class="action-item">
+          <div class="action-priority" style="background:var(--warning)"></div>
+          <div>
+            <div class="action-text"><strong>Bullying peaks on Wednesdays.</strong> Consider scheduling anti-bullying circle time for Thursday mornings as a follow-up intervention.</div>
+            <div class="action-meta">Priority: Medium · Category: Bullying · Pattern: Temporal</div>
+          </div>
+        </div>
+        <div class="action-item">
+          <div class="action-priority" style="background:var(--info)"></div>
+          <div>
+            <div class="action-text"><strong>Adoption rate plateau at 78%.</strong> 22% of families haven't opted in. Consider a parent information evening to increase coverage and data confidence.</div>
+            <div class="action-meta">Priority: Low · Category: Adoption · Metric: Coverage</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OTHER VIEWS (placeholder) -->
+    <div id="view-threats" style="display:none">
+      <div class="chart-card"><div class="chart-title">Detailed Threat Analysis</div><p style="color:var(--dim);font-size:.85rem;padding:20px 0">Drill down into each threat category with per-language breakdown, triggered patterns, and false positive analysis. Coming in v1.1.</p></div>
+    </div>
+    <div id="view-temporal" style="display:none">
+      <div class="chart-card"><div class="chart-title">Temporal Pattern Analysis</div><p style="color:var(--dim);font-size:.85rem;padding:20px 0">Full temporal breakdown — hourly, daily, weekly, seasonal. Correlation with school calendar, holidays, and events. Coming in v1.1.</p></div>
+    </div>
+    <div id="view-trends" style="display:none">
+      <div class="chart-card"><div class="chart-title">12-Week Rolling Trends</div><p style="color:var(--dim);font-size:.85rem;padding:20px 0">Per-category trend lines with intervention annotations. "Digital citizenship programme ran Week 8 → bullying ↓31%." Coming in v1.1.</p></div>
+    </div>
+    <div id="view-actions" style="display:none">
+      <div class="chart-card"><div class="chart-title">Action History</div><p style="color:var(--dim);font-size:.85rem;padding:20px 0">Full log of recommended actions with status tracking (pending, in progress, completed, measured). Coming in v1.1.</p></div>
+    </div>
+    <div id="view-interventions" style="display:none">
+      <div class="chart-card"><div class="chart-title">Intervention Tracker</div><p style="color:var(--dim);font-size:.85rem;padding:20px 0">Log interventions, measure before/after impact with statistical confidence. "Anti-bullying workshop: bullying ↓42% in 4 weeks." Coming in v1.1.</p></div>
+    </div>
+    <div id="view-benchmark" style="display:none">
+      <div class="chart-card"><div class="chart-title">Benchmarking</div><p style="color:var(--dim);font-size:.85rem;padding:20px 0">Compare your school against municipal average, regional average, and national average. Available when 10+ schools in your municipality are using Custorian. Coming in v1.1.</p></div>
+    </div>
+    <div id="view-adoption" style="display:none">
+      <div class="chart-card">
+        <div class="chart-title">Adoption Metrics</div>
+        <div class="stats-row" style="margin-top:16px">
+          <div class="stat-card"><div class="stat-label">Families</div><div class="stat-value">312</div></div>
+          <div class="stat-card"><div class="stat-label">Using Custorian</div><div class="stat-value">243</div></div>
+          <div class="stat-card"><div class="stat-label">School Mode Opt-in</div><div class="stat-value">78%</div></div>
+          <div class="stat-card"><div class="stat-label">Data Confidence</div><div class="stat-value" style="color:var(--safe)">High</div></div>
+        </div>
+      </div>
+    </div>
+    <div id="view-methodology" style="display:none">
+      <div class="chart-card">
+        <div class="chart-title">Methodology & Data Transparency</div>
+        <div class="methodology" style="margin-top:0;background:transparent;border:none;padding:0">
+          <p style="margin-bottom:12px"><strong>What this dashboard shows:</strong> Anonymised, aggregate threat patterns detected by on-device AI across opted-in families. No individual student data is ever visible.</p>
+          <p style="margin-bottom:12px"><strong>What flows from the device:</strong> Alert category (grooming, bullying, etc.), severity level (low/medium/high/critical), timestamp, and age bracket. Never message content, student names, or device identifiers.</p>
+          <p style="margin-bottom:12px"><strong>Confidence levels:</strong> Data confidence depends on adoption rate. Below 30% adoption, patterns may not be statistically representative. We label confidence on every metric.</p>
+          <p style="margin-bottom:12px"><strong>Detection accuracy:</strong> Published quarterly. Current: English 88% precision, Danish 84% precision. False positive rate: ~8%. We are transparent about limitations.</p>
+          <p style="margin-bottom:12px"><strong>Consent:</strong> Parents opt in to school mode during app onboarding. They can opt out at any time. Without opt-in, their child's data is not included in this dashboard.</p>
+          <p><strong>Standard:</strong> Custorian Controls Framework v0.1 · IEEE P3462 aligned · custorian.org</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const ROLE_LABELS = { school: 'School Administrator', municipality: 'Municipality / Kommune', region: 'Regional Authority', national: 'National Agency' };
+const ROLE_SUBTITLES = { school: 'Odense International School · This term', municipality: 'Odense Kommune · 47 schools · This term', region: 'Region Syddanmark · 12 municipalities · This term', national: 'Denmark · 5 regions · This term' };
+
+function login() {
+  const role = document.getElementById('loginRole').value;
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('sidebarRole').textContent = ROLE_LABELS[role];
+  document.getElementById('mainSubtitle').textContent = ROLE_SUBTITLES[role];
+
+  // Show/hide municipality-specific features
+  if (role === 'municipality' || role === 'region' || role === 'national') {
+    document.getElementById('benchmarkSection').style.display = 'block';
+    document.getElementById('benchmarkLink').style.display = 'block';
+  }
+}
+
+function logout() {
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+}
+
+function switchView(view) {
+  document.querySelectorAll('[id^="view-"]').forEach(v => v.style.display = 'none');
+  document.getElementById('view-' + view).style.display = 'block';
+  document.querySelectorAll('.sidebar-nav li').forEach(li => li.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('mainTitle').textContent = event.target.textContent;
+}
+
+function exportReport() {
+  alert('PDF export coming in v1.1. This will generate a presentation-ready compliance report.');
+}
+</script>
+
+</body>
+</html>
