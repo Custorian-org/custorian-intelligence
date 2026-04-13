@@ -141,6 +141,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
       <li id="benchmarkLink" onclick="switchView('benchmark')">Compare</li>
       <div class="sidebar-section">System</div>
       <li onclick="switchView('adoption')">Adoption Metrics</li>
+      <li onclick="switchView('baseline')">National Baseline</li>
       <li onclick="switchView('methodology')">Methodology</li>
     </ul>
     <div class="sidebar-logout" onclick="logout()">Sign out</div>
@@ -351,6 +352,192 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
         </div>
       </div>
     </div>
+    <div id="view-baseline" style="display:none">
+      <div class="chart-card" style="margin-bottom:24px">
+        <div class="chart-title">National & International Baseline Data</div>
+        <p style="color:var(--dim);font-size:.82rem;line-height:1.6;margin-bottom:20px">These are the best available statistics from established sources. Use them to contextualise your Custorian data. Custorian provides real-time, continuous measurement — these baselines are periodic surveys and reports.</p>
+      </div>
+
+      <!-- Grooming -->
+      <div class="chart-card" style="margin-bottom:16px">
+        <div class="chart-title">Grooming & Online Exploitation</div>
+        <div class="table-card" style="box-shadow:none;margin-bottom:0">
+          <div class="table-header" style="grid-template-columns:2fr 2fr 1fr">
+            <div>Statistic</div><div>Source</div><div>Year</div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>45 minutes average from first contact to exploitation request</div>
+            <div><a href="https://www.iwf.org.uk/annual-report-2023/" target="_blank" style="color:var(--accent);text-decoration:underline">Internet Watch Foundation</a></div>
+            <div>2023</div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>36.2 million CSAM reports submitted to NCMEC CyberTipline</div>
+            <div><a href="https://www.missingkids.org/content/ncmec/en/press-release/2024/ncmec-releases-2023-csam-statistics.html" target="_blank" style="color:var(--accent);text-decoration:underline">NCMEC</a></div>
+            <div>2023</div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>1 in 5 children receive unwanted sexual solicitation online</div>
+            <div><a href="https://www.thorn.org/child-sexual-exploitation-and-technology/" target="_blank" style="color:var(--accent);text-decoration:underline">Thorn / Benenson Strategy Group</a></div>
+            <div>2023</div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>Online grooming offences in England & Wales up 82% in 5 years</div>
+            <div><a href="https://www.nspcc.org.uk/about-us/news-opinion/2023/online-grooming-record-high/" target="_blank" style="color:var(--accent);text-decoration:underline">NSPCC</a></div>
+            <div>2023</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bullying -->
+      <div class="chart-card" style="margin-bottom:16px">
+        <div class="chart-title">Cyberbullying</div>
+        <div class="table-card" style="box-shadow:none;margin-bottom:0">
+          <div class="table-header" style="grid-template-columns:2fr 2fr 1fr">
+            <div>Statistic</div><div>Source</div><div>Year</div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>1 in 3 children globally experience cyberbullying</div>
+            <div><a href="https://www.unesco.org/en/articles/school-violence-and-bullying-global-status-report" target="_blank" style="color:var(--accent);text-decoration:underline">UNESCO</a></div>
+            <div>2024</div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>37% of children aged 12-17 have experienced cyberbullying</div>
+            <div><a href="https://cyberbullying.org/facts" target="_blank" style="color:var(--accent);text-decoration:underline">Cyberbullying Research Center</a></div>
+            <div>2023</div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>25% of Danish children aged 9-16 have experienced online harassment</div>
+            <div><a href="https://www.lse.ac.uk/media-and-communications/research/research-projects/eu-kids-online" target="_blank" style="color:var(--accent);text-decoration:underline">EU Kids Online</a></div>
+            <div>2024</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Self-Harm -->
+      <div class="chart-card" style="margin-bottom:16px">
+        <div class="chart-title">Self-Harm & Mental Health</div>
+        <div class="table-card" style="box-shadow:none;margin-bottom:0">
+          <div class="table-header" style="grid-template-columns:2fr 2fr 1fr">
+            <div>Statistic</div><div>Source</div><div>Year</div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>46% increase in self-harm among teens since 2010</div>
+            <div><a href="https://www.bmj.com/content/382/bmj-2023-076515" target="_blank" style="color:var(--accent);text-decoration:underline">CDC / BMJ</a></div>
+            <div>2023</div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>Suicide is the 2nd leading cause of death among 15-24 year olds in the EU</div>
+            <div><a href="https://ec.europa.eu/eurostat/statistics-explained/index.php?title=Causes_of_death_statistics" target="_blank" style="color:var(--accent);text-decoration:underline">Eurostat</a></div>
+            <div>2023</div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>57% of teen girls report persistent feelings of sadness or hopelessness</div>
+            <div><a href="https://www.cdc.gov/healthyyouth/data/yrbs/index.htm" target="_blank" style="color:var(--accent);text-decoration:underline">CDC Youth Risk Behavior Survey</a></div>
+            <div>2023</div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>Børns Vilkår: 32% increase in calls about self-harm from under-18s (Denmark)</div>
+            <div><a href="https://bornsvilkar.dk/nyheder/" target="_blank" style="color:var(--accent);text-decoration:underline">Børns Vilkår</a></div>
+            <div>2024</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Screen Time & Content -->
+      <div class="chart-card" style="margin-bottom:16px">
+        <div class="chart-title">Screen Time & Harmful Content</div>
+        <div class="table-card" style="box-shadow:none;margin-bottom:0">
+          <div class="table-header" style="grid-template-columns:2fr 2fr 1fr">
+            <div>Statistic</div><div>Source</div><div>Year</div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>7.5 hours average daily screen time for teens (non-school)</div>
+            <div><a href="https://www.commonsensemedia.org/research/the-common-sense-census-media-use-by-tweens-and-teens" target="_blank" style="color:var(--accent);text-decoration:underline">Common Sense Media</a></div>
+            <div>2024</div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>64% of teens encounter extreme or violent content on social media</div>
+            <div><a href="https://www.hhs.gov/surgeongeneral/priorities/youth-mental-health/social-media/index.html" target="_blank" style="color:var(--accent);text-decoration:underline">US Surgeon General Advisory</a></div>
+            <div>2023</div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>1 in 3 children aged 8-11 have social media profiles despite age limits</div>
+            <div><a href="https://www.ofcom.org.uk/research-and-data/online-research/children-and-parents-media-use-and-attitudes" target="_blank" style="color:var(--accent);text-decoration:underline">Ofcom</a></div>
+            <div>2024</div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>72% of children's apps leak data to third-party trackers</div>
+            <div><a href="https://www.usenix.org/conference/usenixsecurity19/presentation/reyes" target="_blank" style="color:var(--accent);text-decoration:underline">ICSI / USENIX Security</a></div>
+            <div>2023</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Denmark Specific -->
+      <div class="chart-card" style="margin-bottom:16px">
+        <div class="chart-title">Denmark-Specific Data</div>
+        <div class="table-card" style="box-shadow:none;margin-bottom:0">
+          <div class="table-header" style="grid-template-columns:2fr 2fr 1fr">
+            <div>Statistic</div><div>Source</div><div>Year</div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>Under-15 social media law enacted</div>
+            <div><a href="https://www.retsinformation.dk/" target="_blank" style="color:var(--accent);text-decoration:underline">Retsinformation.dk</a></div>
+            <div>2027</div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>Jutland Declaration signed by 25 EU member states (Odense)</div>
+            <div><a href="https://www.euronews.com/next/2025/10/13/eu-countries-sign-danish-plan-to-boost-child-protection-online" target="_blank" style="color:var(--accent);text-decoration:underline">Euronews</a></div>
+            <div>2025</div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>Børnetelefonen (116 111): 220,000+ contacts from children annually</div>
+            <div><a href="https://bornsvilkar.dk/" target="_blank" style="color:var(--accent);text-decoration:underline">Børns Vilkår</a></div>
+            <div>2024</div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>Red Barnet: 67% of Danish parents worry about their children's online safety</div>
+            <div><a href="https://www.telefonforaeldre.dk/" target="_blank" style="color:var(--accent);text-decoration:underline">Red Barnet / ForældreTelefonen</a></div>
+            <div>2024</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Regulatory -->
+      <div class="chart-card" style="margin-bottom:16px">
+        <div class="chart-title">Regulatory Landscape</div>
+        <div class="table-card" style="box-shadow:none;margin-bottom:0">
+          <div class="table-header" style="grid-template-columns:2fr 2fr 1fr">
+            <div>Regulation</div><div>Relevance</div><div>Status</div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>EU Digital Services Act (Art. 28, 35)</div>
+            <div>Platforms must protect minors + conduct systemic risk assessments</div>
+            <div><span class="table-badge" style="background:var(--safe-bg);color:var(--safe)">In force</span></div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>EU AI Act</div>
+            <div>AI systems affecting children classified as high-risk</div>
+            <div><span class="table-badge" style="background:var(--safe-bg);color:var(--safe)">In force 2026</span></div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>IEEE P3462</div>
+            <div>Safety by Design for GenAI — child safety focus</div>
+            <div><span class="table-badge" style="background:var(--warning-bg);color:var(--warning)">Draft</span></div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>EU Digital Identity Wallet (eIDAS 2.0)</div>
+            <div>Age verification without revealing identity</div>
+            <div><span class="table-badge" style="background:var(--warning-bg);color:var(--warning)">Pilots 2027</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="methodology">
+        <strong>How to use this baseline:</strong> Compare your Custorian real-time data against these national/international benchmarks. If your school shows bullying at 15% of students vs. the national average of 25-33%, your interventions are working. If you're above baseline, it may indicate either better detection or a real problem requiring action. Context matters — discuss anomalies with your Custorian representative.
+      </div>
+    </div>
+
     <div id="view-methodology" style="display:none">
       <div class="chart-card">
         <div class="chart-title">Methodology & Data Transparency</div>
