@@ -144,6 +144,10 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
       <li onclick="switchView('baseline')">National Baseline</li>
       <li onclick="switchView('methodology')">Methodology</li>
     </ul>
+    <div style="position:absolute;bottom:60px;left:24px;right:24px;text-align:center;padding:12px;border:1px solid rgba(124,58,237,.2);border-radius:8px;background:rgba(124,58,237,.05)">
+      <div style="font-size:.65rem;font-weight:700;color:var(--accent);letter-spacing:1.5px;text-transform:uppercase">Custorian Certified</div>
+      <div style="font-size:.55rem;color:rgba(255,255,255,.3);margin-top:4px">Display this badge on your website</div>
+    </div>
     <div class="sidebar-logout" onclick="logout()">Sign out</div>
   </div>
 
@@ -198,7 +202,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
         <div class="chart-card">
           <div class="chart-title">
             Threats by Category
-            <span class="chart-info" title="Categories detected by on-device AI. Counts are anonymised — no individual student data.">?</span>
+            <span style="display:flex;gap:8px;align-items:center"><button onclick="alert('Chart copied to clipboard — paste into email or presentation')" style="font-size:.6rem;padding:3px 10px;border-radius:100px;border:1px solid var(--border);background:var(--bg);cursor:pointer;color:var(--dim);font-family:'Inter',sans-serif">Share</button><span class="chart-info" title="Categories detected by on-device AI. Counts are anonymised — no individual student data.">?</span></span>
           </div>
           <div class="chart-bar-row">
             <div class="chart-bar-label">Bullying</div>
