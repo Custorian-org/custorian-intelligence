@@ -32,22 +32,24 @@ function Stat({ label, value, color }: { label: string; value: string | number; 
 export default function Dashboard() {
   const router = useRouter();
   const [authUser, setAuthUser] = useState<string | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
   const [scans, setScans] = useState<any[]>([]);
   const [photodna, setPhotodna] = useState<any[]>([]);
   const [sessions, setSessions] = useState<any[]>([]);
   const [interventions, setInterventions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Check localStorage auth
+  // Check localStorage auth (only runs client-side)
   useEffect(() => {
-    const auth = localStorage.getItem('custorian_auth');
-    if (!auth) { router.push('/login'); return; }
     try {
+      const auth = localStorage.getItem('custorian_auth');
+      if (!auth) { router.push('/login'); return; }
       const parsed = JSON.parse(auth);
       setAuthUser(parsed.email);
     } catch {
       router.push('/login');
     }
+    setAuthChecked(true);
   }, [router]);
 
   const signOut = () => {
@@ -55,7 +57,7 @@ export default function Dashboard() {
     router.push('/login');
   };
 
-  if (!authUser) return (
+  if (!authChecked || !authUser) return (
     <div className="min-h-screen bg-[#08080c] flex items-center justify-center">
       <div className="text-[#a78bfa] text-xs tracking-[.3em] uppercase animate-pulse">Authenticating...</div>
     </div>
