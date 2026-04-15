@@ -39,5 +39,12 @@ export function useAuth() {
     await supabase.auth.signOut();
   };
 
-  return { user, session, loading, signIn, signUp, signOut };
+  const resetPassword = async (email: string) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: 'https://custorian-intelligence.vercel.app/login',
+    });
+    return error;
+  };
+
+  return { user, session, loading, signIn, signUp, signOut, resetPassword };
 }

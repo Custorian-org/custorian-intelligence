@@ -10,7 +10,7 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [message, setMessage] = useState('');
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, resetPassword } = useAuth();
   const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent) {
@@ -87,13 +87,27 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="text-center mt-6">
+        <div className="text-center mt-6 space-y-3">
           <button
             onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError(''); setMessage(''); }}
-            className="text-xs text-gray-500 hover:text-[#a78bfa] transition-colors"
+            className="text-xs text-gray-500 hover:text-[#a78bfa] transition-colors block mx-auto"
           >
             {mode === 'login' ? 'Need an account? Sign up' : 'Already have an account? Sign in'}
           </button>
+          {mode === 'login' && (
+            <button
+              onClick={async () => {
+                if (!email) { setError('Enter your email first'); return; }
+                setError(''); setMessage('');
+                const err = await resetPassword(email);
+                if (err) setError(err.message);
+                else setMessage('Password reset link sent. Check your email.');
+              }}
+              className="text-xs text-gray-600 hover:text-[#a78bfa] transition-colors block mx-auto"
+            >
+              Forgot password?
+            </button>
+          )}
         </div>
 
         <div className="text-center mt-12 text-[10px] text-gray-600">
