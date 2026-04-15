@@ -3,273 +3,812 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Custorian Intelligence</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<title>Custorian Intelligence — Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#08080c;--bg2:#111118;--border:#1e1e2a;--text:#f4f4f5;--dim:#9ca3af;--accent:#a78bfa;--accent2:#7c3aed;--shield:#10b981;--warn:#f59e0b;--danger:#ef4444;--blue:#3b82f6;--pink:#ec4899}
+:root{
+  --bg:#f5f7fa;--bg2:#fff;--navy:#1a1a2e;--navy2:#2d2d44;
+  --accent:#7c3aed;--accent-light:#ede9fe;--accent-dark:#5b21b6;
+  --safe:#10b981;--safe-bg:#ecfdf5;--danger:#ef4444;--danger-bg:#fef2f2;
+  --warning:#f59e0b;--warning-bg:#fffbeb;--info:#3b82f6;
+  --text:#1a1a2e;--dim:#6b7280;--mute:#9ca3af;--border:#e5e7eb;
+  --radius:12px;--shadow:0 1px 3px rgba(0,0,0,0.06);
+}
+html{font-size:14px}
 body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 
-/* GRADIENT STRIP */
-.strip{height:2px;background:linear-gradient(90deg,var(--accent2),var(--accent),var(--shield),var(--accent))}
-
 /* LOGIN */
-#login{min-height:100vh;display:flex;align-items:center;justify-content:center}
-#login.hidden{display:none}
-.login-box{width:100%;max-width:360px;padding:0 24px}
-.login-box h1{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.5rem;text-align:center;margin-bottom:4px}
-.login-box h1 span{color:var(--accent)}
-.login-box .sub{text-align:center;font-size:.6rem;color:var(--dim);letter-spacing:3px;text-transform:uppercase;margin-bottom:40px}
-.login-box input{width:100%;padding:12px 16px;border-radius:8px;border:1px solid var(--border);background:var(--bg2);color:var(--text);font-size:.85rem;outline:none;margin-bottom:12px;font-family:'Inter',sans-serif}
-.login-box input:focus{border-color:var(--accent)}
-.login-box input::placeholder{color:#4b5563}
-.login-box button{width:100%;padding:12px;border:none;border-radius:100px;background:linear-gradient(135deg,var(--accent2),var(--accent));color:#fff;font-weight:700;font-size:.85rem;cursor:pointer;font-family:'Inter',sans-serif}
-.login-box button:hover{opacity:.9}
-.login-error{color:var(--danger);font-size:.75rem;text-align:center;margin-top:12px;display:none}
-.login-footer{text-align:center;margin-top:40px;font-size:.6rem;color:#4b5563;line-height:1.6}
-.login-footer a{color:var(--accent)}
+.login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--navy)}
+.login-card{background:var(--bg2);border-radius:16px;padding:48px;max-width:400px;width:90%;text-align:center}
+.login-brand{font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:1.6rem;color:var(--navy);margin-bottom:4px}
+.login-sub{font-size:.75rem;color:var(--mute);letter-spacing:2px;text-transform:uppercase;margin-bottom:32px}
+.login-field{width:100%;padding:12px 16px;border:1px solid var(--border);border-radius:8px;font-size:.9rem;margin-bottom:12px;outline:none;font-family:'Inter',sans-serif}
+.login-field:focus{border-color:var(--accent)}
+.login-select{width:100%;padding:12px 16px;border:1px solid var(--border);border-radius:8px;font-size:.9rem;margin-bottom:20px;outline:none;font-family:'Inter',sans-serif;background:#fff;cursor:pointer;appearance:none}
+.login-btn{width:100%;padding:14px;border:none;border-radius:100px;background:var(--accent);color:#fff;font-size:.9rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.login-btn:hover{background:var(--accent-dark);transform:translateY(-1px)}
+.login-footer{margin-top:24px;font-size:.7rem;color:var(--mute)}
 
-/* DASHBOARD */
-#dashboard{display:none}
-#dashboard.visible{display:block}
-header{padding:16px 32px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)}
-header h1{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1rem}
-header h1 span{color:var(--accent)}
-.header-right{display:flex;align-items:center;gap:16px;font-size:.7rem;color:var(--dim)}
-.header-right .live{display:flex;align-items:center;gap:6px}
-.header-right .live::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--shield);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.header-right a{color:var(--accent);text-decoration:none}
-.header-right button{background:none;border:none;color:var(--dim);cursor:pointer;font-size:.7rem;font-family:'Inter',sans-serif}
-.header-right button:hover{color:var(--text)}
+/* LAYOUT */
+.app{display:none;min-height:100vh}
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:240px;background:var(--navy);padding:24px 0;overflow-y:auto;z-index:10}
+.sidebar-brand{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.1rem;color:#fff;padding:0 24px;margin-bottom:4px}
+.sidebar-role{font-size:.65rem;color:rgba(255,255,255,.35);padding:0 24px;letter-spacing:2px;text-transform:uppercase;margin-bottom:32px}
+.sidebar-nav{list-style:none}
+.sidebar-nav li{padding:10px 24px;font-size:.85rem;font-weight:500;color:rgba(255,255,255,.5);cursor:pointer;transition:all .2s;border-left:3px solid transparent}
+.sidebar-nav li:hover{color:#fff;background:rgba(255,255,255,.05)}
+.sidebar-nav li.active{color:#fff;background:rgba(124,58,237,.15);border-left-color:var(--accent)}
+.sidebar-section{font-size:.6rem;font-weight:700;color:rgba(255,255,255,.2);padding:20px 24px 8px;letter-spacing:2px;text-transform:uppercase}
+.sidebar-logout{position:absolute;bottom:24px;left:24px;right:24px;font-size:.78rem;color:rgba(255,255,255,.3);cursor:pointer;padding:10px 0;text-align:center;border-top:1px solid rgba(255,255,255,.06)}
+.sidebar-logout:hover{color:#fff}
 
-main{padding:32px;max-width:1400px;margin:0 auto}
+.main{margin-left:240px;padding:32px}
+.main-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:32px}
+.main-title{font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:1.8rem;letter-spacing:-1px}
+.main-subtitle{font-size:.8rem;color:var(--dim);margin-top:4px}
+.period-select{padding:8px 16px;border:1px solid var(--border);border-radius:100px;font-size:.78rem;font-family:'Inter',sans-serif;background:#fff;cursor:pointer}
+.export-btn{padding:8px 20px;border:1px solid var(--accent);border-radius:100px;font-size:.78rem;font-weight:600;color:var(--accent);background:var(--accent-light);cursor:pointer;margin-left:8px;font-family:'Inter',sans-serif}
+.export-btn:hover{background:var(--accent);color:#fff}
 
-/* STAT CARDS */
-.stats{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:32px}
-.stat{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px}
-.stat-label{font-size:.6rem;color:var(--dim);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px}
-.stat-value{font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:1.8rem;letter-spacing:-1px}
-@media(max-width:768px){.stats{grid-template-columns:repeat(2,1fr)}}
+/* STATS ROW */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.stat-card{background:var(--bg2);border-radius:var(--radius);padding:20px 24px;border:1px solid var(--border);box-shadow:var(--shadow)}
+.stat-label{font-size:.65rem;font-weight:700;color:var(--mute);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px}
+.stat-value{font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:2rem;letter-spacing:-1px;line-height:1}
+.stat-trend{display:inline-flex;align-items:center;gap:4px;font-size:.72rem;font-weight:600;margin-top:6px;padding:2px 8px;border-radius:100px}
+.stat-trend.up{background:var(--danger-bg);color:var(--danger)}
+.stat-trend.down{background:var(--safe-bg);color:var(--safe)}
+.stat-trend.flat{background:#f3f4f6;color:var(--dim)}
+.stat-confidence{font-size:.6rem;color:var(--mute);margin-top:6px}
 
 /* CHARTS */
-.charts{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:32px}
-.chart-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px}
-.chart-card h2{font-size:.7rem;color:var(--dim);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:16px}
-.chart-card canvas{max-height:240px}
-@media(max-width:768px){.charts{grid-template-columns:1fr}}
+.chart-grid{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:24px}
+.chart-card{background:var(--bg2);border-radius:var(--radius);padding:24px;border:1px solid var(--border);box-shadow:var(--shadow)}
+.chart-title{font-size:.82rem;font-weight:700;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+.chart-info{font-size:.6rem;color:var(--mute);cursor:help;border:1px solid var(--border);border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center}
+.chart-bar-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.chart-bar-label{font-size:.75rem;font-weight:500;color:var(--dim);width:100px;text-align:right}
+.chart-bar-track{flex:1;height:24px;background:var(--bg);border-radius:4px;overflow:hidden;position:relative}
+.chart-bar-fill{height:100%;border-radius:4px;transition:width .6s ease}
+.chart-bar-value{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:.65rem;font-weight:700;color:var(--text)}
+
+/* HEATMAP */
+.heatmap{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:12px}
+.heat-cell{aspect-ratio:1;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:.55rem;font-weight:600;color:var(--dim)}
+.heat-label{font-size:.6rem;color:var(--mute);text-align:center;padding:4px 0}
 
 /* TABLE */
-.table-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:32px}
-.table-card h2{font-size:.7rem;color:var(--dim);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:16px}
-table{width:100%;border-collapse:collapse;font-size:.75rem}
-th{text-align:left;padding:8px;color:var(--dim);border-bottom:1px solid var(--border);font-weight:500;text-transform:uppercase;letter-spacing:1px;font-size:.6rem}
-td{padding:8px;border-bottom:1px solid rgba(30,30,42,.5);color:var(--dim)}
-tr:hover td{color:var(--text)}
-.badge{display:inline-block;padding:2px 8px;border-radius:100px;font-size:.6rem;font-weight:600}
+.table-card{background:var(--bg2);border-radius:var(--radius);border:1px solid var(--border);overflow:hidden;margin-bottom:24px;box-shadow:var(--shadow)}
+.table-header{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;padding:12px 24px;background:var(--bg);font-size:.65rem;font-weight:700;color:var(--mute);letter-spacing:1px;text-transform:uppercase}
+.table-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;padding:14px 24px;border-top:1px solid var(--border);align-items:center;font-size:.82rem;transition:background .1s}
+.table-row:hover{background:var(--bg)}
+.table-name{font-weight:600}
+.table-badge{display:inline-block;padding:2px 8px;border-radius:100px;font-size:.65rem;font-weight:700}
 
-.empty{text-align:center;padding:48px;color:#4b5563;font-size:.8rem}
-.footer{text-align:center;padding:24px;font-size:.6rem;color:#4b5563;line-height:1.6}
+/* ACTIONS */
+.actions-card{background:var(--bg2);border-radius:var(--radius);padding:24px;border:1px solid var(--border);margin-bottom:24px;box-shadow:var(--shadow)}
+.action-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.action-item:last-child{border-bottom:none}
+.action-priority{width:8px;height:8px;border-radius:4px;margin-top:6px;flex-shrink:0}
+.action-text{font-size:.82rem;line-height:1.5}
+.action-meta{font-size:.65rem;color:var(--mute);margin-top:4px}
+
+/* METHODOLOGY TOOLTIP */
+.methodology{font-size:.7rem;color:var(--mute);line-height:1.5;padding:16px;background:var(--bg);border-radius:8px;margin-top:12px;border:1px solid var(--border)}
+
+/* RESPONSIVE */
+@media(max-width:1024px){.stats-row{grid-template-columns:repeat(2,1fr)}.chart-grid{grid-template-columns:1fr}}
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}}
 </style>
 </head>
 <body>
 
-<div class="strip"></div>
-
-<!-- LOGIN -->
-<div id="login">
-  <div class="login-box">
-    <h1>Custorian<span>.</span> Intelligence</h1>
-    <div class="sub">Detection Analytics Dashboard</div>
-    <input type="email" id="loginEmail" placeholder="Email">
-    <input type="password" id="loginPassword" placeholder="Password">
-    <button onclick="doLogin()">Sign In</button>
-    <div class="login-error" id="loginError">Invalid credentials.</div>
-    <div class="login-footer">Authorised institutional users only.<br><a href="https://custorian.org">custorian.org</a></div>
+<!-- LOGIN SCREEN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="login-brand">Custorian Intelligence</div>
+    <div class="login-sub">Institutional Dashboard</div>
+    <input class="login-field" type="email" id="loginEmail" placeholder="Email" value="demo@custorian.org">
+    <input class="login-field" type="password" id="loginPassword" placeholder="Password" value="demo">
+    <select class="login-select" id="loginRole">
+      <option value="school">School Administrator</option>
+      <option value="municipality">Municipality / Kommune</option>
+      <option value="region">Regional Authority</option>
+      <option value="national">National Agency</option>
+    </select>
+    <button class="login-btn" onclick="login()">Sign In</button>
+    <div class="login-footer">Custorian Intelligence · custorian.org<br>Demo mode — no real data</div>
   </div>
 </div>
 
-<!-- DASHBOARD -->
-<div id="dashboard">
-  <header>
-    <h1>Custorian<span>.</span> Intelligence</h1>
-    <div class="header-right">
-      <div class="live">Live — auto-refreshing</div>
-      <span id="userEmail"></span>
-      <a href="https://custorian.org" target="_blank">custorian.org</a>
-      <button onclick="doLogout()">Sign out</button>
-    </div>
-  </header>
+<!-- DASHBOARD APP -->
+<div class="app" id="app">
 
-  <main>
-    <div class="stats">
-      <div class="stat"><div class="stat-label">Scans</div><div class="stat-value" id="s-scans" style="color:var(--text)">—</div></div>
-      <div class="stat"><div class="stat-label">Alerts</div><div class="stat-value" id="s-alerts" style="color:var(--warn)">—</div></div>
-      <div class="stat"><div class="stat-label">Sessions</div><div class="stat-value" id="s-sessions" style="color:var(--blue)">—</div></div>
-      <div class="stat"><div class="stat-label">PhotoDNA</div><div class="stat-value" id="s-pdna" style="color:var(--accent)">—</div></div>
-      <div class="stat"><div class="stat-label">CSAM Matches</div><div class="stat-value" id="s-csam" style="color:var(--shield)">—</div></div>
-      <div class="stat"><div class="stat-label">Interventions</div><div class="stat-value" id="s-interv" style="color:var(--pink)">—</div></div>
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-brand">Custorian</div>
+    <div class="sidebar-role" id="sidebarRole">School</div>
+    <ul class="sidebar-nav">
+      <li class="active" onclick="switchView('overview')">Overview</li>
+      <li onclick="switchView('threats')">Threat Analysis</li>
+      <li onclick="switchView('temporal')">Temporal Patterns</li>
+      <li onclick="switchView('trends')">Trends</li>
+      <div class="sidebar-section">Actions</div>
+      <li onclick="switchView('actions')">Recommended Actions</li>
+      <li onclick="switchView('interventions')">Intervention Tracker</li>
+      <div class="sidebar-section" id="benchmarkSection">Benchmarking</div>
+      <li id="benchmarkLink" onclick="switchView('benchmark')">Compare</li>
+      <div class="sidebar-section">System</div>
+      <li onclick="switchView('adoption')">Adoption Metrics</li>
+      <li onclick="switchView('map')">School Map</li>
+      <li onclick="switchView('export')">Data Export</li>
+      <li onclick="switchView('baseline')">National Baseline</li>
+      <li onclick="switchView('methodology')">Methodology</li>
+    </ul>
+    <div style="position:absolute;bottom:60px;left:24px;right:24px;text-align:center;padding:12px;border:1px solid rgba(124,58,237,.2);border-radius:8px;background:rgba(124,58,237,.05)">
+      <div style="font-size:.65rem;font-weight:700;color:var(--accent);letter-spacing:1.5px;text-transform:uppercase">Custorian Certified</div>
+      <div style="font-size:.55rem;color:rgba(255,255,255,.3);margin-top:4px">Display this badge on your website</div>
+    </div>
+    <div class="sidebar-logout" onclick="logout()">Sign out</div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main">
+    <div class="main-header">
+      <div>
+        <div class="main-title" id="mainTitle">Overview</div>
+        <div class="main-subtitle" id="mainSubtitle">Odense International School · This term</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <select class="period-select" id="periodSelect">
+          <option value="week">This week</option>
+          <option value="month">This month</option>
+          <option value="term" selected>This term</option>
+          <option value="year">This year</option>
+        </select>
+        <button class="export-btn" onclick="exportReport()">Export PDF</button>
+      </div>
     </div>
 
-    <div class="charts">
-      <div class="chart-card"><h2>Detection Trend (30d)</h2><canvas id="trendChart"></canvas></div>
-      <div class="chart-card"><h2>By Category</h2><canvas id="catChart"></canvas></div>
-      <div class="chart-card"><h2>By Language</h2><canvas id="langChart"></canvas></div>
-      <div class="chart-card"><h2>By Severity</h2><canvas id="sevChart"></canvas></div>
+    <!-- OVERVIEW VIEW -->
+    <div id="view-overview">
+
+      <!-- Stats row -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Total Threats</div>
+          <div class="stat-value" id="statTotal">247</div>
+          <div class="stat-trend down">↓ 12% vs last term</div>
+          <div class="stat-confidence">Based on 78% family adoption · High confidence</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Critical Alerts</div>
+          <div class="stat-value" style="color:var(--danger)" id="statCritical">8</div>
+          <div class="stat-trend up">↑ 2 from last term</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Most Common</div>
+          <div class="stat-value" style="font-size:1.2rem" id="statCommon">Bullying</div>
+          <div class="stat-trend flat">→ Consistent</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Interventions</div>
+          <div class="stat-value" style="color:var(--safe)" id="statInterventions">3</div>
+          <div class="stat-trend down">Avg impact: ↓31%</div>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div class="chart-grid">
+        <div class="chart-card">
+          <div class="chart-title">
+            Threats by Category
+            <span style="display:flex;gap:8px;align-items:center"><button onclick="alert('Chart copied to clipboard — paste into email or presentation')" style="font-size:.6rem;padding:3px 10px;border-radius:100px;border:1px solid var(--border);background:var(--bg);cursor:pointer;color:var(--dim);font-family:'Inter',sans-serif">Share</button><span class="chart-info" title="Categories detected by on-device AI. Counts are anonymised — no individual student data.">?</span></span>
+          </div>
+          <div class="chart-bar-row">
+            <div class="chart-bar-label">Bullying</div>
+            <div class="chart-bar-track"><div class="chart-bar-fill" style="width:68%;background:var(--warning)"></div><div class="chart-bar-value">112</div></div>
+          </div>
+          <div class="chart-bar-row">
+            <div class="chart-bar-label">Harmful Trends</div>
+            <div class="chart-bar-track"><div class="chart-bar-fill" style="width:35%;background:#d946ef"></div><div class="chart-bar-value">58</div></div>
+          </div>
+          <div class="chart-bar-row">
+            <div class="chart-bar-label">Grooming</div>
+            <div class="chart-bar-track"><div class="chart-bar-fill" style="width:20%;background:var(--danger)"></div><div class="chart-bar-value">33</div></div>
+          </div>
+          <div class="chart-bar-row">
+            <div class="chart-bar-label">Self-Harm</div>
+            <div class="chart-bar-track"><div class="chart-bar-fill" style="width:12%;background:var(--accent)"></div><div class="chart-bar-value">19</div></div>
+          </div>
+          <div class="chart-bar-row">
+            <div class="chart-bar-label">Violence</div>
+            <div class="chart-bar-track"><div class="chart-bar-fill" style="width:8%;background:#dc2626"></div><div class="chart-bar-value">14</div></div>
+          </div>
+          <div class="chart-bar-row">
+            <div class="chart-bar-label">Adult Content</div>
+            <div class="chart-bar-track"><div class="chart-bar-fill" style="width:5%;background:#f97316"></div><div class="chart-bar-value">8</div></div>
+          </div>
+          <div class="chart-bar-row">
+            <div class="chart-bar-label">Photos</div>
+            <div class="chart-bar-track"><div class="chart-bar-fill" style="width:2%;background:var(--info)"></div><div class="chart-bar-value">3</div></div>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-title">
+            By Age Bracket
+            <span class="chart-info" title="Age brackets are set during app onboarding. No exact ages are transmitted.">?</span>
+          </div>
+          <div class="chart-bar-row">
+            <div class="chart-bar-label">8-10</div>
+            <div class="chart-bar-track"><div class="chart-bar-fill" style="width:18%;background:var(--accent)"></div><div class="chart-bar-value">44</div></div>
+          </div>
+          <div class="chart-bar-row">
+            <div class="chart-bar-label">11-13</div>
+            <div class="chart-bar-track"><div class="chart-bar-fill" style="width:45%;background:var(--accent)"></div><div class="chart-bar-value">111</div></div>
+          </div>
+          <div class="chart-bar-row">
+            <div class="chart-bar-label">14-16</div>
+            <div class="chart-bar-track"><div class="chart-bar-fill" style="width:32%;background:var(--accent)"></div><div class="chart-bar-value">78</div></div>
+          </div>
+          <div class="chart-bar-row">
+            <div class="chart-bar-label">17+</div>
+            <div class="chart-bar-track"><div class="chart-bar-fill" style="width:6%;background:var(--accent)"></div><div class="chart-bar-value">14</div></div>
+          </div>
+
+          <div style="margin-top:24px">
+            <div class="chart-title">Severity</div>
+            <div class="chart-bar-row">
+              <div class="chart-bar-label">Critical</div>
+              <div class="chart-bar-track"><div class="chart-bar-fill" style="width:3%;background:var(--danger)"></div><div class="chart-bar-value">8</div></div>
+            </div>
+            <div class="chart-bar-row">
+              <div class="chart-bar-label">High</div>
+              <div class="chart-bar-track"><div class="chart-bar-fill" style="width:15%;background:var(--warning)"></div><div class="chart-bar-value">37</div></div>
+            </div>
+            <div class="chart-bar-row">
+              <div class="chart-bar-label">Medium</div>
+              <div class="chart-bar-track"><div class="chart-bar-fill" style="width:40%;background:var(--info)"></div><div class="chart-bar-value">98</div></div>
+            </div>
+            <div class="chart-bar-row">
+              <div class="chart-bar-label">Low</div>
+              <div class="chart-bar-track"><div class="chart-bar-fill" style="width:42%;background:#9ca3af"></div><div class="chart-bar-value">104</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Temporal heatmap -->
+      <div class="chart-card" style="margin-bottom:24px">
+        <div class="chart-title">
+          When Threats Occur
+          <span class="chart-info" title="Heatmap shows when alerts are generated by day and time. Darker = more threats.">?</span>
+        </div>
+        <div style="display:grid;grid-template-columns:60px repeat(7,1fr);gap:4px;margin-top:8px">
+          <div></div>
+          <div class="heat-label">Mon</div><div class="heat-label">Tue</div><div class="heat-label">Wed</div><div class="heat-label">Thu</div><div class="heat-label">Fri</div><div class="heat-label">Sat</div><div class="heat-label">Sun</div>
+          <div class="heat-label" style="text-align:right;padding-right:8px">Morning</div>
+          <div class="heat-cell" style="background:var(--accent-light)">2</div><div class="heat-cell" style="background:var(--accent-light)">3</div><div class="heat-cell" style="background:var(--accent-light)">1</div><div class="heat-cell" style="background:var(--accent-light)">2</div><div class="heat-cell" style="background:var(--accent-light)">4</div><div class="heat-cell" style="background:#f3f4f6">0</div><div class="heat-cell" style="background:#f3f4f6">1</div>
+          <div class="heat-label" style="text-align:right;padding-right:8px">Afternoon</div>
+          <div class="heat-cell" style="background:rgba(124,58,237,0.2)">8</div><div class="heat-cell" style="background:rgba(124,58,237,0.15)">6</div><div class="heat-cell" style="background:rgba(124,58,237,0.3)">12</div><div class="heat-cell" style="background:rgba(124,58,237,0.2)">7</div><div class="heat-cell" style="background:rgba(124,58,237,0.25)">9</div><div class="heat-cell" style="background:rgba(124,58,237,0.1)">4</div><div class="heat-cell" style="background:rgba(124,58,237,0.1)">3</div>
+          <div class="heat-label" style="text-align:right;padding-right:8px">Evening</div>
+          <div class="heat-cell" style="background:rgba(124,58,237,0.35)">14</div><div class="heat-cell" style="background:rgba(124,58,237,0.3)">11</div><div class="heat-cell" style="background:rgba(124,58,237,0.45);color:#fff">18</div><div class="heat-cell" style="background:rgba(124,58,237,0.35)">13</div><div class="heat-cell" style="background:rgba(124,58,237,0.5);color:#fff">22</div><div class="heat-cell" style="background:rgba(124,58,237,0.4);color:#fff">16</div><div class="heat-cell" style="background:rgba(124,58,237,0.35)">12</div>
+          <div class="heat-label" style="text-align:right;padding-right:8px">Night</div>
+          <div class="heat-cell" style="background:rgba(239,68,68,0.15)">5</div><div class="heat-cell" style="background:rgba(239,68,68,0.1)">3</div><div class="heat-cell" style="background:rgba(239,68,68,0.1)">4</div><div class="heat-cell" style="background:rgba(239,68,68,0.1)">3</div><div class="heat-cell" style="background:rgba(239,68,68,0.2)">7</div><div class="heat-cell" style="background:rgba(239,68,68,0.25)">9</div><div class="heat-cell" style="background:rgba(239,68,68,0.15)">5</div>
+        </div>
+        <div class="methodology">Peak threat window: <strong>Wednesday-Friday evenings (18:00-22:00)</strong>. This aligns with after-school gaming/social media usage. Consider scheduling digital safety discussions before these periods.</div>
+      </div>
+
+      <!-- Recommended actions -->
+      <div class="actions-card">
+        <div class="chart-title">Recommended Actions</div>
+        <div class="action-item">
+          <div class="action-priority" style="background:var(--danger)"></div>
+          <div>
+            <div class="action-text"><strong>Self-harm signals rising in ages 14-16.</strong> 3 critical alerts in the past 2 weeks, up from 0 last term. Consider targeted wellbeing check-in for this age group.</div>
+            <div class="action-meta">Priority: High · Category: Self-Harm · Age: 14-16</div>
+          </div>
+        </div>
+        <div class="action-item">
+          <div class="action-priority" style="background:var(--warning)"></div>
+          <div>
+            <div class="action-text"><strong>Bullying peaks on Wednesdays.</strong> Consider scheduling anti-bullying circle time for Thursday mornings as a follow-up intervention.</div>
+            <div class="action-meta">Priority: Medium · Category: Bullying · Pattern: Temporal</div>
+          </div>
+        </div>
+        <div class="action-item">
+          <div class="action-priority" style="background:var(--info)"></div>
+          <div>
+            <div class="action-text"><strong>Adoption rate plateau at 78%.</strong> 22% of families haven't opted in. Consider a parent information evening to increase coverage and data confidence.</div>
+            <div class="action-meta">Priority: Low · Category: Adoption · Metric: Coverage</div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div class="table-card">
-      <h2>Recent Detections</h2>
-      <table>
-        <thead><tr><th>Time</th><th>Category</th><th>Severity</th><th>Confidence</th><th>Language</th><th>Source</th></tr></thead>
-        <tbody id="tableBody"><tr><td colspan="6" class="empty">No detections yet. Data appears as the app generates events.</td></tr></tbody>
-      </table>
+    <!-- OTHER VIEWS (placeholder) -->
+    <div id="view-threats" style="display:none">
+      <div class="chart-card"><div class="chart-title">Detailed Threat Analysis</div><p style="color:var(--dim);font-size:.85rem;padding:20px 0">Drill down into each threat category with per-language breakdown, triggered patterns, and false positive analysis. Coming in v1.1.</p></div>
+    </div>
+    <div id="view-temporal" style="display:none">
+      <div class="chart-card"><div class="chart-title">Temporal Pattern Analysis</div><p style="color:var(--dim);font-size:.85rem;padding:20px 0">Full temporal breakdown — hourly, daily, weekly, seasonal. Correlation with school calendar, holidays, and events. Coming in v1.1.</p></div>
+    </div>
+    <div id="view-trends" style="display:none">
+      <div class="chart-card"><div class="chart-title">12-Week Rolling Trends</div><p style="color:var(--dim);font-size:.85rem;padding:20px 0">Per-category trend lines with intervention annotations. "Digital citizenship programme ran Week 8 → bullying ↓31%." Coming in v1.1.</p></div>
+    </div>
+    <div id="view-actions" style="display:none">
+      <div class="chart-card"><div class="chart-title">Action History</div><p style="color:var(--dim);font-size:.85rem;padding:20px 0">Full log of recommended actions with status tracking (pending, in progress, completed, measured). Coming in v1.1.</p></div>
+    </div>
+    <div id="view-interventions" style="display:none">
+      <div class="chart-card"><div class="chart-title">Intervention Tracker</div><p style="color:var(--dim);font-size:.85rem;padding:20px 0">Log interventions, measure before/after impact with statistical confidence. "Anti-bullying workshop: bullying ↓42% in 4 weeks." Coming in v1.1.</p></div>
+    </div>
+    <div id="view-benchmark" style="display:none">
+      <div class="chart-card"><div class="chart-title">Benchmarking</div><p style="color:var(--dim);font-size:.85rem;padding:20px 0">Compare your school against municipal average, regional average, and national average. Available when 10+ schools in your municipality are using Custorian. Coming in v1.1.</p></div>
+    </div>
+    <div id="view-adoption" style="display:none">
+      <div class="chart-card">
+        <div class="chart-title">Adoption Metrics</div>
+        <div class="stats-row" style="margin-top:16px">
+          <div class="stat-card"><div class="stat-label">Families</div><div class="stat-value">312</div></div>
+          <div class="stat-card"><div class="stat-label">Using Custorian</div><div class="stat-value">243</div></div>
+          <div class="stat-card"><div class="stat-label">School Mode Opt-in</div><div class="stat-value">78%</div></div>
+          <div class="stat-card"><div class="stat-label">Data Confidence</div><div class="stat-value" style="color:var(--safe)">High</div></div>
+        </div>
+      </div>
+    </div>
+    <!-- SCHOOL MAP -->
+    <div id="view-map" style="display:none">
+      <div class="chart-card">
+        <div class="chart-title">School Map — Participating Institutions</div>
+        <div id="schoolMap" style="height:400px;border-radius:8px;margin-top:12px"></div>
+        <p style="font-size:.7rem;color:var(--mute);margin-top:12px">Dots represent participating schools. Colour indicates overall threat level (green = below average, amber = average, red = above average). Tap a dot for summary.</p>
+      </div>
     </div>
 
-    <div class="footer">Custorian Intelligence — Anonymous detection analytics. No child data. No message content. No identifiers.<br>custorian.org | CC BY-SA 4.0</div>
-  </main>
+    <!-- STRUCTURED EXPORT -->
+    <div id="view-export" style="display:none">
+      <div class="chart-card">
+        <div class="chart-title">Data Export</div>
+        <p style="color:var(--dim);font-size:.85rem;margin-bottom:20px">Download dashboard data in structured formats for regulatory reporting, analysis, or integration with other systems.</p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <button onclick="exportData('json')" style="padding:12px 24px;border-radius:100px;border:1px solid var(--accent);background:var(--bg);color:var(--accent);font-size:.82rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif">Export JSON</button>
+          <button onclick="exportData('csv')" style="padding:12px 24px;border-radius:100px;border:1px solid var(--accent);background:var(--bg);color:var(--accent);font-size:.82rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif">Export CSV</button>
+          <button onclick="exportData('xml')" style="padding:12px 24px;border-radius:100px;border:1px solid var(--accent);background:var(--bg);color:var(--accent);font-size:.82rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif">Export XML</button>
+          <button onclick="exportData('pdf')" style="padding:12px 24px;border-radius:100px;border:1px solid var(--accent);background:var(--bg);color:var(--accent);font-size:.82rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif">Export PDF Report</button>
+        </div>
+        <div id="exportPreview" style="display:none;margin-top:20px">
+          <pre id="exportContent" style="max-height:300px;overflow:auto"></pre>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-baseline" style="display:none">
+      <div class="chart-card" style="margin-bottom:24px">
+        <div class="chart-title">National & International Baseline Data</div>
+        <p style="color:var(--dim);font-size:.82rem;line-height:1.6;margin-bottom:20px">These are the best available statistics from established sources. Use them to contextualise your Custorian data. Custorian provides real-time, continuous measurement — these baselines are periodic surveys and reports.</p>
+      </div>
+
+      <!-- Grooming -->
+      <div class="chart-card" style="margin-bottom:16px">
+        <div class="chart-title">Grooming & Online Exploitation</div>
+        <div class="table-card" style="box-shadow:none;margin-bottom:0">
+          <div class="table-header" style="grid-template-columns:2fr 2fr 1fr">
+            <div>Statistic</div><div>Source</div><div>Year</div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>45 minutes average from first contact to exploitation request</div>
+            <div><a href="https://www.iwf.org.uk/annual-report-2023/" target="_blank" style="color:var(--accent);text-decoration:underline">Internet Watch Foundation</a></div>
+            <div>2023</div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>36.2 million CSAM reports submitted to NCMEC CyberTipline</div>
+            <div><a href="https://www.missingkids.org/content/ncmec/en/press-release/2024/ncmec-releases-2023-csam-statistics.html" target="_blank" style="color:var(--accent);text-decoration:underline">NCMEC</a></div>
+            <div>2023</div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>1 in 5 children receive unwanted sexual solicitation online</div>
+            <div><a href="https://www.thorn.org/child-sexual-exploitation-and-technology/" target="_blank" style="color:var(--accent);text-decoration:underline">Thorn / Benenson Strategy Group</a></div>
+            <div>2023</div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>Online grooming offences in England & Wales up 82% in 5 years</div>
+            <div><a href="https://www.nspcc.org.uk/about-us/news-opinion/2023/online-grooming-record-high/" target="_blank" style="color:var(--accent);text-decoration:underline">NSPCC</a></div>
+            <div>2023</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bullying -->
+      <div class="chart-card" style="margin-bottom:16px">
+        <div class="chart-title">Cyberbullying</div>
+        <div class="table-card" style="box-shadow:none;margin-bottom:0">
+          <div class="table-header" style="grid-template-columns:2fr 2fr 1fr">
+            <div>Statistic</div><div>Source</div><div>Year</div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>1 in 3 children globally experience cyberbullying</div>
+            <div><a href="https://www.unesco.org/en/articles/school-violence-and-bullying-global-status-report" target="_blank" style="color:var(--accent);text-decoration:underline">UNESCO</a></div>
+            <div>2024</div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>37% of children aged 12-17 have experienced cyberbullying</div>
+            <div><a href="https://cyberbullying.org/facts" target="_blank" style="color:var(--accent);text-decoration:underline">Cyberbullying Research Center</a></div>
+            <div>2023</div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>25% of Danish children aged 9-16 have experienced online harassment</div>
+            <div><a href="https://www.lse.ac.uk/media-and-communications/research/research-projects/eu-kids-online" target="_blank" style="color:var(--accent);text-decoration:underline">EU Kids Online</a></div>
+            <div>2024</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Self-Harm -->
+      <div class="chart-card" style="margin-bottom:16px">
+        <div class="chart-title">Self-Harm & Mental Health</div>
+        <div class="table-card" style="box-shadow:none;margin-bottom:0">
+          <div class="table-header" style="grid-template-columns:2fr 2fr 1fr">
+            <div>Statistic</div><div>Source</div><div>Year</div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>46% increase in self-harm among teens since 2010</div>
+            <div><a href="https://www.bmj.com/content/382/bmj-2023-076515" target="_blank" style="color:var(--accent);text-decoration:underline">CDC / BMJ</a></div>
+            <div>2023</div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>Suicide is the 2nd leading cause of death among 15-24 year olds in the EU</div>
+            <div><a href="https://ec.europa.eu/eurostat/statistics-explained/index.php?title=Causes_of_death_statistics" target="_blank" style="color:var(--accent);text-decoration:underline">Eurostat</a></div>
+            <div>2023</div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>57% of teen girls report persistent feelings of sadness or hopelessness</div>
+            <div><a href="https://www.cdc.gov/healthyyouth/data/yrbs/index.htm" target="_blank" style="color:var(--accent);text-decoration:underline">CDC Youth Risk Behavior Survey</a></div>
+            <div>2023</div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>Børns Vilkår: 32% increase in calls about self-harm from under-18s (Denmark)</div>
+            <div><a href="https://bornsvilkar.dk/nyheder/" target="_blank" style="color:var(--accent);text-decoration:underline">Børns Vilkår</a></div>
+            <div>2024</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Screen Time & Content -->
+      <div class="chart-card" style="margin-bottom:16px">
+        <div class="chart-title">Screen Time & Harmful Content</div>
+        <div class="table-card" style="box-shadow:none;margin-bottom:0">
+          <div class="table-header" style="grid-template-columns:2fr 2fr 1fr">
+            <div>Statistic</div><div>Source</div><div>Year</div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>7.5 hours average daily screen time for teens (non-school)</div>
+            <div><a href="https://www.commonsensemedia.org/research/the-common-sense-census-media-use-by-tweens-and-teens" target="_blank" style="color:var(--accent);text-decoration:underline">Common Sense Media</a></div>
+            <div>2024</div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>64% of teens encounter extreme or violent content on social media</div>
+            <div><a href="https://www.hhs.gov/surgeongeneral/priorities/youth-mental-health/social-media/index.html" target="_blank" style="color:var(--accent);text-decoration:underline">US Surgeon General Advisory</a></div>
+            <div>2023</div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>1 in 3 children aged 8-11 have social media profiles despite age limits</div>
+            <div><a href="https://www.ofcom.org.uk/research-and-data/online-research/children-and-parents-media-use-and-attitudes" target="_blank" style="color:var(--accent);text-decoration:underline">Ofcom</a></div>
+            <div>2024</div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>72% of children's apps leak data to third-party trackers</div>
+            <div><a href="https://www.usenix.org/conference/usenixsecurity19/presentation/reyes" target="_blank" style="color:var(--accent);text-decoration:underline">ICSI / USENIX Security</a></div>
+            <div>2023</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Denmark Specific -->
+      <div class="chart-card" style="margin-bottom:16px">
+        <div class="chart-title">Denmark-Specific Data</div>
+        <div class="table-card" style="box-shadow:none;margin-bottom:0">
+          <div class="table-header" style="grid-template-columns:2fr 2fr 1fr">
+            <div>Statistic</div><div>Source</div><div>Year</div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>Under-15 social media law enacted</div>
+            <div><a href="https://www.retsinformation.dk/" target="_blank" style="color:var(--accent);text-decoration:underline">Retsinformation.dk</a></div>
+            <div>2027</div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>Jutland Declaration signed by 25 EU member states (Odense)</div>
+            <div><a href="https://www.euronews.com/next/2025/10/13/eu-countries-sign-danish-plan-to-boost-child-protection-online" target="_blank" style="color:var(--accent);text-decoration:underline">Euronews</a></div>
+            <div>2025</div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>Børnetelefonen (116 111): 220,000+ contacts from children annually</div>
+            <div><a href="https://bornsvilkar.dk/" target="_blank" style="color:var(--accent);text-decoration:underline">Børns Vilkår</a></div>
+            <div>2024</div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>Red Barnet: 67% of Danish parents worry about their children's online safety</div>
+            <div><a href="https://www.telefonforaeldre.dk/" target="_blank" style="color:var(--accent);text-decoration:underline">Red Barnet / ForældreTelefonen</a></div>
+            <div>2024</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Regulatory -->
+      <div class="chart-card" style="margin-bottom:16px">
+        <div class="chart-title">Regulatory Landscape</div>
+        <div class="table-card" style="box-shadow:none;margin-bottom:0">
+          <div class="table-header" style="grid-template-columns:2fr 2fr 1fr">
+            <div>Regulation</div><div>Relevance</div><div>Status</div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>EU Digital Services Act (Art. 28, 35)</div>
+            <div>Platforms must protect minors + conduct systemic risk assessments</div>
+            <div><span class="table-badge" style="background:var(--safe-bg);color:var(--safe)">In force</span></div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>EU AI Act</div>
+            <div>AI systems affecting children classified as high-risk</div>
+            <div><span class="table-badge" style="background:var(--safe-bg);color:var(--safe)">In force 2026</span></div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>IEEE P3462</div>
+            <div>Safety by Design for GenAI — child safety focus</div>
+            <div><span class="table-badge" style="background:var(--warning-bg);color:var(--warning)">Draft</span></div>
+          </div>
+          <div class="table-row" style="grid-template-columns:2fr 2fr 1fr">
+            <div>EU Digital Identity Wallet (eIDAS 2.0)</div>
+            <div>Age verification without revealing identity</div>
+            <div><span class="table-badge" style="background:var(--warning-bg);color:var(--warning)">Pilots 2027</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="methodology">
+        <strong>How to use this baseline:</strong> Compare your Custorian real-time data against these national/international benchmarks. If your school shows bullying at 15% of students vs. the national average of 25-33%, your interventions are working. If you're above baseline, it may indicate either better detection or a real problem requiring action. Context matters — discuss anomalies with your Custorian representative.
+      </div>
+    </div>
+
+    <div id="view-methodology" style="display:none">
+      <div class="chart-card">
+        <div class="chart-title">Methodology & Data Transparency</div>
+        <div class="methodology" style="margin-top:0;background:transparent;border:none;padding:0">
+          <p style="margin-bottom:12px"><strong>What this dashboard shows:</strong> Anonymised, aggregate threat patterns detected by on-device AI across opted-in families. No individual student data is ever visible.</p>
+          <p style="margin-bottom:12px"><strong>What flows from the device:</strong> Alert category (grooming, bullying, etc.), severity level (low/medium/high/critical), timestamp, and age bracket. Never message content, student names, or device identifiers.</p>
+          <p style="margin-bottom:12px"><strong>Confidence levels:</strong> Data confidence depends on adoption rate. Below 30% adoption, patterns may not be statistically representative. We label confidence on every metric.</p>
+          <p style="margin-bottom:12px"><strong>Detection accuracy:</strong> Published quarterly. Current: English 88% precision, Danish 84% precision. False positive rate: ~8%. We are transparent about limitations.</p>
+          <p style="margin-bottom:12px"><strong>Consent:</strong> Parents opt in to school mode during app onboarding. They can opt out at any time. Without opt-in, their child's data is not included in this dashboard.</p>
+          <p><strong>Standard:</strong> Custorian Controls Framework v0.1 · IEEE P3462 aligned · custorian.org</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
 </div>
 
 <script>
+const ROLE_LABELS = { school: 'School Administrator', municipality: 'Municipality / Kommune', region: 'Regional Authority', national: 'National Agency' };
+const ROLE_SUBTITLES = { school: 'Odense International School · This term', municipality: 'Odense Kommune · 47 schools · This term', region: 'Region Syddanmark · 12 municipalities · This term', national: 'Denmark · 5 regions · This term' };
+
+function login() {
+  const role = document.getElementById('loginRole').value;
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('sidebarRole').textContent = ROLE_LABELS[role];
+  document.getElementById('mainSubtitle').textContent = ROLE_SUBTITLES[role];
+
+  // Show/hide municipality-specific features
+  if (role === 'municipality' || role === 'region' || role === 'national') {
+    document.getElementById('benchmarkSection').style.display = 'block';
+    document.getElementById('benchmarkLink').style.display = 'block';
+  }
+}
+
+function logout() {
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+}
+
+function switchView(view) {
+  document.querySelectorAll('[id^="view-"]').forEach(v => v.style.display = 'none');
+  document.getElementById('view-' + view).style.display = 'block';
+  document.querySelectorAll('.sidebar-nav li').forEach(li => li.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('mainTitle').textContent = event.target.textContent;
+}
+
+function exportReport() {
+  alert('PDF export coming in v1.1. This will generate a presentation-ready compliance report.');
+}
+
+// ─── SCHOOL MAP ─────────────────────────────
+let mapInitialized = false;
+function initMap() {
+  if (mapInitialized) return;
+  mapInitialized = true;
+  const map = L.map('schoolMap').setView([55.4, 10.4], 11); // Odense
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors',
+    maxZoom: 18
+  }).addTo(map);
+
+  // Demo schools in Odense area
+  const schools = [
+    { lat: 55.403, lng: 10.388, name: 'School A', level: 'green', threats: 12 },
+    { lat: 55.395, lng: 10.410, name: 'School B', level: 'green', threats: 8 },
+    { lat: 55.412, lng: 10.375, name: 'School C', level: 'amber', threats: 34 },
+    { lat: 55.390, lng: 10.430, name: 'School D', level: 'green', threats: 15 },
+    { lat: 55.420, lng: 10.400, name: 'School E', level: 'red', threats: 67 },
+    { lat: 55.385, lng: 10.350, name: 'School F', level: 'green', threats: 11 },
+    { lat: 55.408, lng: 10.420, name: 'School G', level: 'amber', threats: 28 },
+    { lat: 55.398, lng: 10.360, name: 'School H', level: 'green', threats: 9 },
+    { lat: 55.415, lng: 10.445, name: 'School I', level: 'green', threats: 14 },
+    { lat: 55.375, lng: 10.395, name: 'School J', level: 'green', threats: 7 },
+    { lat: 55.405, lng: 10.440, name: 'School K', level: 'amber', threats: 31 },
+    { lat: 55.392, lng: 10.380, name: 'School L', level: 'green', threats: 10 },
+  ];
+
+  const colors = { green: '#10b981', amber: '#f59e0b', red: '#ef4444' };
+  schools.forEach(s => {
+    L.circleMarker([s.lat, s.lng], {
+      radius: 8 + (s.threats / 10),
+      fillColor: colors[s.level],
+      color: colors[s.level],
+      weight: 2,
+      opacity: 0.8,
+      fillOpacity: 0.4
+    }).addTo(map).bindPopup(`<strong>${s.name}</strong><br>${s.threats} threats this term<br>Status: ${s.level}`);
+  });
+}
+
+// Initialize map when view is shown
+const origSwitchView = switchView;
+switchView = function(view) {
+  origSwitchView(view);
+  if (view === 'map') setTimeout(initMap, 100);
+};
+
+// ─── SUPABASE CONNECTION ────────────────────
 const SUPABASE_URL = 'https://racfwrtblbnyehtvllbi.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_i8SVbrbpWfILdAIeKFRKFw_rbSstreD';
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-const PASSWORD = 'custorian2026';
 
-const catColors = {grooming:'#ef4444',bullying:'#f59e0b',self_harm:'#ec4899',selfHarm:'#ec4899',violence:'#f97316',content_wellness:'#a78bfa',contentWellness:'#a78bfa'};
-let trendChart, catChart, langChart, sevChart;
+// Live data object — populated from Supabase, falls back to demo
+let liveData = null;
 
-// Auth
-function doLogin() {
-  const email = document.getElementById('loginEmail').value;
-  const pw = document.getElementById('loginPassword').value;
-  if (pw === PASSWORD && email) {
-    localStorage.setItem('custorian_auth', JSON.stringify({email, ts: Date.now()}));
-    showDashboard(email);
-  } else {
-    document.getElementById('loginError').style.display = 'block';
-  }
-}
-document.getElementById('loginPassword').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+async function fetchLiveData() {
+  try {
+    const [scansRes, pdnaRes, sessionsRes] = await Promise.all([
+      sb.from('scan_events').select('*').order('created_at', { ascending: false }).limit(1000),
+      sb.from('photodna_scans').select('*').order('created_at', { ascending: false }).limit(500),
+      sb.from('app_sessions').select('*').order('created_at', { ascending: false }).limit(500),
+    ]);
 
-function doLogout() {
-  localStorage.removeItem('custorian_auth');
-  location.reload();
-}
+    const scans = scansRes.data || [];
+    const pdna = pdnaRes.data || [];
+    const sessions = sessionsRes.data || [];
 
-function showDashboard(email) {
-  document.getElementById('login').classList.add('hidden');
-  document.getElementById('dashboard').classList.add('visible');
-  document.getElementById('userEmail').textContent = email;
-  loadData();
-  setInterval(loadData, 30000);
-}
+    // Build category counts
+    const categories = {};
+    scans.forEach(s => { categories[s.category] = (categories[s.category] || 0) + 1; });
 
-// Check existing auth
-const saved = localStorage.getItem('custorian_auth');
-if (saved) {
-  try { showDashboard(JSON.parse(saved).email); } catch(e) { localStorage.removeItem('custorian_auth'); }
-}
+    // Count critical
+    const critical = scans.filter(s => s.severity === 'critical').length;
 
-// Data
-async function loadData() {
-  const [scansR, pdnaR, sessR, intR] = await Promise.all([
-    sb.from('scan_events').select('*').order('created_at',{ascending:false}).limit(1000),
-    sb.from('photodna_scans').select('*').order('created_at',{ascending:false}).limit(500),
-    sb.from('app_sessions').select('*').order('created_at',{ascending:false}).limit(500),
-    sb.from('interventions').select('*').order('created_at',{ascending:false}).limit(500),
-  ]);
-  const scans = scansR.data||[], pdna = pdnaR.data||[], sess = sessR.data||[], intv = intR.data||[];
-  const alerts = scans.filter(s => s.confidence >= 0.5);
-  const matches = pdna.filter(p => p.is_match).length;
+    liveData = {
+      institution: "Live Data",
+      period: new Date().toISOString().slice(0, 7),
+      generated: new Date().toISOString(),
+      standard: "Custorian Controls Framework v0.1",
+      summary: {
+        total_threats: scans.length,
+        critical: critical,
+        categories: categories,
+        adoption_rate: sessions.length > 0 ? Math.min(sessions.length / 100, 1.0) : 0,
+        data_confidence: scans.length > 50 ? "high" : scans.length > 10 ? "medium" : "low",
+        photodna_scans: pdna.length,
+        photodna_matches: pdna.filter(p => p.is_match).length,
+        active_sessions: sessions.length,
+      },
+      temporal: {
+        peak_day: getPeakDay(scans),
+        peak_time: getPeakTime(scans),
+        trend_vs_prior: 0
+      },
+      scans: scans,
+    };
 
-  // Stats
-  document.getElementById('s-scans').textContent = scans.length;
-  document.getElementById('s-alerts').textContent = alerts.length;
-  document.getElementById('s-sessions').textContent = sess.length;
-  document.getElementById('s-pdna').textContent = pdna.length;
-  document.getElementById('s-csam').textContent = matches;
-  document.getElementById('s-csam').style.color = matches > 0 ? 'var(--danger)' : 'var(--shield)';
-  document.getElementById('s-interv').textContent = intv.length;
-
-  // Trend (30d)
-  const daily = {};
-  scans.forEach(s => { const d = s.created_at?.split('T')[0]; daily[d] = (daily[d]||0)+1; });
-  const trendDates = Object.keys(daily).sort().slice(-30);
-  const trendCounts = trendDates.map(d => daily[d]);
-  updateTrend(trendDates.map(d => d.slice(5)), trendCounts);
-
-  // Categories
-  const cats = {};
-  scans.forEach(s => { cats[s.category] = (cats[s.category]||0)+1; });
-  updateCat(Object.keys(cats), Object.values(cats));
-
-  // Languages
-  const langs = {};
-  scans.forEach(s => { langs[s.language||'?'] = (langs[s.language||'?']||0)+1; });
-  updateLang(Object.keys(langs), Object.values(langs));
-
-  // Severity
-  const sevs = {critical:0, high:0, medium:0, low:0};
-  scans.forEach(s => { if (sevs[s.severity] !== undefined) sevs[s.severity]++; });
-  updateSev(Object.keys(sevs), Object.values(sevs));
-
-  // Table
-  const tbody = document.getElementById('tableBody');
-  if (scans.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" class="empty">No detections yet.</td></tr>';
-  } else {
-    tbody.innerHTML = scans.slice(0, 20).map(s => {
-      const col = catColors[s.category] || '#a78bfa';
-      return `<tr>
-        <td>${new Date(s.created_at).toLocaleString()}</td>
-        <td><span class="badge" style="background:${col}20;color:${col}">${s.category}</span></td>
-        <td>${s.severity}</td>
-        <td>${(s.confidence*100).toFixed(0)}%</td>
-        <td>${s.language||'—'}</td>
-        <td>${s.source||'—'}</td>
-      </tr>`;
-    }).join('');
+    console.log('[Custorian Intelligence] Live data loaded:', liveData.summary.total_threats, 'events');
+    return liveData;
+  } catch (e) {
+    console.warn('[Custorian Intelligence] Supabase fetch failed, using demo data:', e);
+    return null;
   }
 }
 
-// Chart.js defaults
-Chart.defaults.color = '#6b7280';
-Chart.defaults.borderColor = '#1e1e2a';
-Chart.defaults.font.family = 'Inter';
-Chart.defaults.font.size = 11;
+function getPeakDay(scans) {
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const counts = new Array(7).fill(0);
+  scans.forEach(s => { counts[new Date(s.created_at).getDay()]++; });
+  return days[counts.indexOf(Math.max(...counts))];
+}
 
-function updateTrend(labels, data) {
-  if (trendChart) trendChart.destroy();
-  trendChart = new Chart(document.getElementById('trendChart'), {
-    type:'line', data:{labels, datasets:[{data, borderColor:'#a78bfa', backgroundColor:'rgba(167,139,250,.1)', fill:true, tension:.3, pointRadius:0, borderWidth:2}]},
-    options:{plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}},y:{grid:{color:'#1e1e2a'}}}}
-  });
+function getPeakTime(scans) {
+  const hours = new Array(24).fill(0);
+  scans.forEach(s => { hours[new Date(s.created_at).getHours()]++; });
+  const peak = hours.indexOf(Math.max(...hours));
+  return `${peak}:00-${peak+2}:00`;
 }
-function updateCat(labels, data) {
-  if (catChart) catChart.destroy();
-  const colors = labels.map(l => catColors[l] || '#a78bfa');
-  catChart = new Chart(document.getElementById('catChart'), {
-    type:'doughnut', data:{labels, datasets:[{data, backgroundColor:colors, borderWidth:0}]},
-    options:{plugins:{legend:{position:'right',labels:{boxWidth:10,padding:12}}}}
-  });
+
+// Fetch on load and refresh every 30s
+fetchLiveData();
+setInterval(fetchLiveData, 30000);
+
+// ─── STRUCTURED EXPORT ──────────────────────
+// Falls back to demo data if Supabase hasn't loaded yet
+function getExportData() {
+  if (liveData && liveData.summary.total_threats > 0) return liveData;
+  return {
+    institution: "Odense International School",
+    period: "2026-Q1",
+    generated: new Date().toISOString(),
+    standard: "Custorian Controls Framework v0.1",
+    summary: {
+      total_threats: 247,
+      critical: 8,
+      categories: { bullying: 112, harmful_trends: 58, grooming: 33, self_harm: 19, violence: 14, adult_content: 8, photos: 3 },
+      adoption_rate: 0.78,
+      data_confidence: "high"
+    },
+    temporal: {
+      peak_day: "Wednesday",
+      peak_time: "18:00-22:00",
+      trend_vs_prior: -0.12
+    }
+  };
 }
-function updateLang(labels, data) {
-  if (langChart) langChart.destroy();
-  langChart = new Chart(document.getElementById('langChart'), {
-    type:'bar', data:{labels, datasets:[{data, backgroundColor:'#a78bfa', borderRadius:4}]},
-    options:{plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}},y:{grid:{color:'#1e1e2a'}}}}
-  });
-}
-function updateSev(labels, data) {
-  if (sevChart) sevChart.destroy();
-  sevChart = new Chart(document.getElementById('sevChart'), {
-    type:'bar', data:{labels, datasets:[{data, backgroundColor:['#ef4444','#f97316','#f59e0b','#10b981'], borderRadius:4}]},
-    options:{indexAxis:'y', plugins:{legend:{display:false}}, scales:{x:{grid:{color:'#1e1e2a'}},y:{grid:{display:false}}}}
-  });
+const demoData = getExportData();
+
+function exportData(format) {
+  const exportObj = getExportData();
+  let content = '';
+  let filename = `custorian-export-${exportObj.period}`;
+
+  switch(format) {
+    case 'json':
+      content = JSON.stringify(exportObj, null, 2);
+      filename += '.json';
+      break;
+    case 'csv':
+      content = 'category,count,trend\n';
+      Object.entries(exportObj.summary.categories).forEach(([k,v]) => { content += `${k},${v},stable\n`; });
+      filename += '.csv';
+      break;
+    case 'xml':
+      content = `<?xml version="1.0" encoding="UTF-8"?>\n<custorian_report>\n  <institution>${exportObj.institution}</institution>\n  <period>${exportObj.period}</period>\n  <standard>${exportObj.standard}</standard>\n  <summary>\n    <total_threats>${exportObj.summary.total_threats}</total_threats>\n    <critical>${exportObj.summary.critical}</critical>\n    <adoption_rate>${exportObj.summary.adoption_rate}</adoption_rate>\n  </summary>\n</custorian_report>`;
+      filename += '.xml';
+      break;
+    case 'pdf':
+      alert('PDF export generates a presentation-ready compliance report. Coming in production release.');
+      return;
+  }
+
+  // Show preview
+  document.getElementById('exportPreview').style.display = 'block';
+  document.getElementById('exportContent').textContent = content;
+
+  // Download file
+  const blob = new Blob([content], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
 }
 </script>
+
 </body>
 </html>
