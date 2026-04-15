@@ -149,11 +149,11 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
       <li onclick="switchView('baseline')">National Baseline</li>
       <li onclick="switchView('methodology')">Methodology</li>
     </ul>
-    <div style="position:absolute;bottom:60px;left:24px;right:24px;text-align:center;padding:12px;border:1px solid rgba(124,58,237,.2);border-radius:8px;background:rgba(124,58,237,.05)">
+    <div style="margin:24px 24px 8px;text-align:center;padding:12px;border:1px solid rgba(124,58,237,.2);border-radius:8px;background:rgba(124,58,237,.05)">
       <div style="font-size:.65rem;font-weight:700;color:var(--accent);letter-spacing:1.5px;text-transform:uppercase">Custorian Certified</div>
       <div style="font-size:.55rem;color:rgba(255,255,255,.3);margin-top:4px">Display this badge on your website</div>
     </div>
-    <div class="sidebar-logout" onclick="logout()">Sign out</div>
+    <div style="padding:16px 24px;font-size:.78rem;color:rgba(255,255,255,.3);cursor:pointer;text-align:center;border-top:1px solid rgba(255,255,255,.06);margin-top:8px" onclick="logout()">Sign out</div>
   </div>
 
   <!-- MAIN CONTENT -->
@@ -211,31 +211,31 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
           </div>
           <div class="chart-bar-row">
             <div class="chart-bar-label">Bullying</div>
-            <div class="chart-bar-track"><div class="chart-bar-fill" style="width:68%;background:var(--warning)"></div><div class="chart-bar-value">112</div></div>
+            <div class="chart-bar-track"><div class="chart-bar-fill" style="width:68%;background:var(--accent)"></div><div class="chart-bar-value">112</div></div>
           </div>
           <div class="chart-bar-row">
             <div class="chart-bar-label">Harmful Trends</div>
-            <div class="chart-bar-track"><div class="chart-bar-fill" style="width:35%;background:#d946ef"></div><div class="chart-bar-value">58</div></div>
+            <div class="chart-bar-track"><div class="chart-bar-fill" style="width:35%;background:var(--accent);opacity:.85"></div><div class="chart-bar-value">58</div></div>
           </div>
           <div class="chart-bar-row">
             <div class="chart-bar-label">Grooming</div>
-            <div class="chart-bar-track"><div class="chart-bar-fill" style="width:20%;background:var(--danger)"></div><div class="chart-bar-value">33</div></div>
+            <div class="chart-bar-track"><div class="chart-bar-fill" style="width:20%;background:var(--accent-dark)"></div><div class="chart-bar-value">33</div></div>
           </div>
           <div class="chart-bar-row">
             <div class="chart-bar-label">Self-Harm</div>
-            <div class="chart-bar-track"><div class="chart-bar-fill" style="width:12%;background:var(--accent)"></div><div class="chart-bar-value">19</div></div>
+            <div class="chart-bar-track"><div class="chart-bar-fill" style="width:12%;background:var(--accent);opacity:.7"></div><div class="chart-bar-value">19</div></div>
           </div>
           <div class="chart-bar-row">
             <div class="chart-bar-label">Violence</div>
-            <div class="chart-bar-track"><div class="chart-bar-fill" style="width:8%;background:#dc2626"></div><div class="chart-bar-value">14</div></div>
+            <div class="chart-bar-track"><div class="chart-bar-fill" style="width:8%;background:var(--accent-dark);opacity:.8"></div><div class="chart-bar-value">14</div></div>
           </div>
           <div class="chart-bar-row">
             <div class="chart-bar-label">Adult Content</div>
-            <div class="chart-bar-track"><div class="chart-bar-fill" style="width:5%;background:#f97316"></div><div class="chart-bar-value">8</div></div>
+            <div class="chart-bar-track"><div class="chart-bar-fill" style="width:5%;background:var(--accent);opacity:.6"></div><div class="chart-bar-value">8</div></div>
           </div>
           <div class="chart-bar-row">
             <div class="chart-bar-label">Photos</div>
-            <div class="chart-bar-track"><div class="chart-bar-fill" style="width:2%;background:var(--info)"></div><div class="chart-bar-value">3</div></div>
+            <div class="chart-bar-track"><div class="chart-bar-fill" style="width:2%;background:var(--accent);opacity:.5"></div><div class="chart-bar-value">3</div></div>
           </div>
         </div>
 
@@ -265,19 +265,19 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
             <div class="chart-title">Severity</div>
             <div class="chart-bar-row">
               <div class="chart-bar-label">Critical</div>
-              <div class="chart-bar-track"><div class="chart-bar-fill" style="width:3%;background:var(--danger)"></div><div class="chart-bar-value">8</div></div>
+              <div class="chart-bar-track"><div class="chart-bar-fill" style="width:3%;background:var(--accent-dark)"></div><div class="chart-bar-value">8</div></div>
             </div>
             <div class="chart-bar-row">
               <div class="chart-bar-label">High</div>
-              <div class="chart-bar-track"><div class="chart-bar-fill" style="width:15%;background:var(--warning)"></div><div class="chart-bar-value">37</div></div>
+              <div class="chart-bar-track"><div class="chart-bar-fill" style="width:15%;background:var(--accent)"></div><div class="chart-bar-value">37</div></div>
             </div>
             <div class="chart-bar-row">
               <div class="chart-bar-label">Medium</div>
-              <div class="chart-bar-track"><div class="chart-bar-fill" style="width:40%;background:var(--info)"></div><div class="chart-bar-value">98</div></div>
+              <div class="chart-bar-track"><div class="chart-bar-fill" style="width:40%;background:var(--accent);opacity:.6"></div><div class="chart-bar-value">98</div></div>
             </div>
             <div class="chart-bar-row">
               <div class="chart-bar-label">Low</div>
-              <div class="chart-bar-track"><div class="chart-bar-fill" style="width:42%;background:#9ca3af"></div><div class="chart-bar-value">104</div></div>
+              <div class="chart-bar-track"><div class="chart-bar-fill" style="width:42%;background:var(--accent);opacity:.35"></div><div class="chart-bar-value">104</div></div>
             </div>
           </div>
         </div>
@@ -669,7 +669,7 @@ function initMap() {
 const origSwitchView = switchView;
 switchView = function(view) {
   origSwitchView(view);
-  if (view === 'map') setTimeout(initMap, 100);
+  if (view === 'map') setTimeout(() => { initMap(); window.dispatchEvent(new Event('resize')); }, 200);
 };
 
 // ─── SUPABASE CONNECTION ────────────────────
