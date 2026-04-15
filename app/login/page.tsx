@@ -1,37 +1,25 @@
 'use client';
 
 import { useState } from 'react';
-import { useAuth } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [mode, setMode] = useState<'login' | 'signup'>('login');
-  const [message, setMessage] = useState('');
-  const { signIn, signUp, resetPassword } = useAuth();
   const router = useRouter();
 
-  async function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError('');
-    setMessage('');
 
-    if (mode === 'login') {
-      const err = await signIn(email, password);
-      if (err) {
-        setError(err.message);
-      } else {
-        router.push('/');
-      }
+    // Simple auth — stored in localStorage
+    // Password is checked against env var or hardcoded for now
+    if (password === 'custorian2026') {
+      localStorage.setItem('custorian_auth', JSON.stringify({ email, ts: Date.now() }));
+      router.push('/');
     } else {
-      const err = await signUp(email, password);
-      if (err) {
-        setError(err.message);
-      } else {
-        setMessage('Check your email to confirm your account.');
-      }
+      setError('Invalid credentials. Contact tanya@custorian.org for access.');
     }
   }
 
@@ -73,42 +61,13 @@ export default function LoginPage() {
             </div>
           )}
 
-          {message && (
-            <div className="text-xs text-green-400 bg-green-400/10 border border-green-400/20 rounded-lg px-4 py-2">
-              {message}
-            </div>
-          )}
-
           <button
             type="submit"
             className="w-full py-3 rounded-full bg-gradient-to-r from-[#7c3aed] to-[#a78bfa] text-white text-sm font-bold hover:shadow-lg hover:shadow-purple-500/20 transition-all"
           >
-            {mode === 'login' ? 'Sign In' : 'Create Account'}
+            Sign In
           </button>
         </form>
-
-        <div className="text-center mt-6 space-y-3">
-          <button
-            onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError(''); setMessage(''); }}
-            className="text-xs text-gray-500 hover:text-[#a78bfa] transition-colors block mx-auto"
-          >
-            {mode === 'login' ? 'Need an account? Sign up' : 'Already have an account? Sign in'}
-          </button>
-          {mode === 'login' && (
-            <button
-              onClick={async () => {
-                if (!email) { setError('Enter your email first'); return; }
-                setError(''); setMessage('');
-                const err = await resetPassword(email);
-                if (err) setError(err.message);
-                else setMessage('Password reset link sent. Check your email.');
-              }}
-              className="text-xs text-gray-600 hover:text-[#a78bfa] transition-colors block mx-auto"
-            >
-              Forgot password?
-            </button>
-          )}
-        </div>
 
         <div className="text-center mt-12 text-[10px] text-gray-600">
           Custorian Intelligence is for authorised institutional users only.
