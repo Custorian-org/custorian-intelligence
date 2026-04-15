@@ -1,7 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/lib/auth';
 import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -29,11 +31,24 @@ function Stat({ label, value, color }: { label: string; value: string | number; 
 }
 
 export default function Dashboard() {
+  const { user, loading: authLoading, signOut } = useAuth();
+  const router = useRouter();
   const [scans, setScans] = useState<any[]>([]);
   const [photodna, setPhotodna] = useState<any[]>([]);
   const [sessions, setSessions] = useState<any[]>([]);
   const [interventions, setInterventions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!authLoading && !user) router.push('/login');
+  }, [authLoading, user, router]);
+
+  if (authLoading || !user) return (
+    <div className="min-h-screen bg-[#08080c] flex items-center justify-center">
+      <div className="text-[#a78bfa] text-xs tracking-[.3em] uppercase animate-pulse">Authenticating...</div>
+    </div>
+  );
 
   useEffect(() => {
     async function load() {
@@ -91,7 +106,9 @@ export default function Dashboard() {
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-[#10b981] animate-pulse" /><span className="text-[10px] text-gray-500">Live</span></div>
+          <span className="text-[10px] text-gray-600">{user.email}</span>
           <a href="https://custorian.org" target="_blank" className="text-[10px] text-[#a78bfa] hover:underline">custorian.org</a>
+          <button onClick={signOut} className="text-[10px] text-gray-500 hover:text-white transition-colors">Sign out</button>
         </div>
       </header>
 
